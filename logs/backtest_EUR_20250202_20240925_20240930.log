@@ -1,0 +1,2048 @@
+Backtest Start Time: 2025-02-02 00:00:26
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 10000
+            
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 10000
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 10000
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 8880
+            
+
+Trade Date: 2024-09-26
+Decision based on data up to: 2024-09-25
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 8880
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 8880
+
+Processing trading day: 2024-09-27
+Using data up to: 2024-09-26 (previous trading day)
+Historical data range: 2023-09-28 to 2024-09-26
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 7892
+            
+
+Trade Date: 2024-09-27
+Decision based on data up to: 2024-09-26
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 7892
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7892
+
+Processing trading day: 2024-09-30
+Using data up to: 2024-09-27 (previous trading day)
+Historical data range: 2023-10-01 to 2024-09-27
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 7010
+            
+
+Trade Date: 2024-09-30
+Decision based on data up to: 2024-09-27
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 7010
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7010
+
+==================================================
+Backtest Summary
+==================================================
+Initial Capital: 100,000.00
+Final Value: 100,007.26
+Total Return: 0.01%
+Sharpe Ratio: 0.47
+Maximum Drawdown: -0.06%
+Backtest Start Time: 2025-02-02 00:16:44
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 10000
+            
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 10000
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 10000
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 8880
+            
+
+Trade Date: 2024-09-26
+Decision based on data up to: 2024-09-25
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 8880
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 8880
+
+Processing trading day: 2024-09-27
+Using data up to: 2024-09-26 (previous trading day)
+Historical data range: 2023-09-28 to 2024-09-26
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 7892
+            
+
+Trade Date: 2024-09-27
+Decision based on data up to: 2024-09-26
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 7892
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7892
+
+Processing trading day: 2024-09-30
+Using data up to: 2024-09-27 (previous trading day)
+Historical data range: 2023-10-01 to 2024-09-27
+API limit reached, waiting 11.2 seconds...
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 7010
+            
+
+Trade Date: 2024-09-30
+Decision based on data up to: 2024-09-27
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 7010
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7010
+
+==================================================
+Backtest Summary
+==================================================
+Initial Capital: 100,000.00
+Final Value: 100,007.26
+Total Return: 0.01%
+Sharpe Ratio: 0.47
+Maximum Drawdown: -0.06%
+Backtest Start Time: 2025-02-02 11:47:33
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+Backtest Start Time: 2025-02-02 11:47:40
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 10000
+            
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 10000
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 10000
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 8880
+            
+
+Trade Date: 2024-09-26
+Decision based on data up to: 2024-09-25
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 8880
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 8880
+
+Processing trading day: 2024-09-27
+Using data up to: 2024-09-26 (previous trading day)
+Historical data range: 2023-09-28 to 2024-09-26
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 7892
+            
+
+Trade Date: 2024-09-27
+Decision based on data up to: 2024-09-26
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 7892
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7892
+
+Processing trading day: 2024-09-30
+Using data up to: 2024-09-27 (previous trading day)
+Historical data range: 2023-10-01 to 2024-09-27
+API limit reached, waiting 8.4 seconds...
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 7010
+            
+
+Trade Date: 2024-09-30
+Decision based on data up to: 2024-09-27
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 7010
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7010
+
+==================================================
+Backtest Summary
+==================================================
+Initial Capital: 100,000.00
+Final Value: 100,007.26
+Total Return: 0.01%
+Sharpe Ratio: 0.47
+Maximum Drawdown: -0.06%
+Backtest Start Time: 2025-02-02 11:51:43
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 10000
+            
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 10000
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 10000
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 8880
+            
+
+Trade Date: 2024-09-26
+Decision based on data up to: 2024-09-25
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 8880
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 8880
+
+Processing trading day: 2024-09-27
+Using data up to: 2024-09-26 (previous trading day)
+Historical data range: 2023-09-28 to 2024-09-26
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 7892
+            
+
+Trade Date: 2024-09-27
+Decision based on data up to: 2024-09-26
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 7892
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7892
+
+Processing trading day: 2024-09-30
+Using data up to: 2024-09-27 (previous trading day)
+Historical data range: 2023-10-01 to 2024-09-27
+API limit reached, waiting 8.1 seconds...
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 7010
+            
+
+Trade Date: 2024-09-30
+Decision based on data up to: 2024-09-27
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 7010
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7010
+
+==================================================
+Backtest Summary
+==================================================
+Initial Capital: 100,000.00
+Final Value: 100,007.26
+Total Return: 0.01%
+Sharpe Ratio: 0.47
+Maximum Drawdown: -0.06%
+Backtest Start Time: 2025-02-02 11:58:46
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 10000
+            
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 10000
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 10000
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 8880
+            
+Backtest Start Time: 2025-02-02 12:10:44
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+Backtest Start Time: 2025-02-02 12:20:49
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+Backtest Start Time: 2025-02-02 13:01:58
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 10000
+            
+Backtest Start Time: 2025-02-02 13:13:53
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 10000
+            
+Backtest Start Time: 2025-02-02 13:38:17
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 10000
+            
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 10000
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 10000
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 8880
+            
+
+Trade Date: 2024-09-26
+Decision based on data up to: 2024-09-25
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 8880
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 8880
+
+Processing trading day: 2024-09-27
+Using data up to: 2024-09-26 (previous trading day)
+Historical data range: 2023-09-28 to 2024-09-26
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 7892
+            
+
+Trade Date: 2024-09-27
+Decision based on data up to: 2024-09-26
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 7892
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7892
+
+Processing trading day: 2024-09-30
+Using data up to: 2024-09-27 (previous trading day)
+Historical data range: 2023-10-01 to 2024-09-27
+API limit reached, waiting 5.5 seconds...
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 7010
+            
+
+Trade Date: 2024-09-30
+Decision based on data up to: 2024-09-27
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 7010
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7010
+Backtest Start Time: 2025-02-02 16:20:29
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 10000
+            
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 10000
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 10000
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 8880
+            
+
+Trade Date: 2024-09-26
+Decision based on data up to: 2024-09-25
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 8880
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 8880
+
+Processing trading day: 2024-09-27
+Using data up to: 2024-09-26 (previous trading day)
+Historical data range: 2023-09-28 to 2024-09-26
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 7892
+            
+
+Trade Date: 2024-09-27
+Decision based on data up to: 2024-09-26
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 7892
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7892
+
+Processing trading day: 2024-09-30
+Using data up to: 2024-09-27 (previous trading day)
+Historical data range: 2023-10-01 to 2024-09-27
+API limit reached, waiting 8.1 seconds...
+获取决策失败 (尝试 1/3): 'EUR'
+获取决策失败 (尝试 2/3): 'EUR'
+获取决策失败 (尝试 3/3): 'EUR'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): 'EUR'
+            默认操作: 做多
+            默认数量: 7010
+            
+
+Trade Date: 2024-09-30
+Decision based on data up to: 2024-09-27
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): 'EUR'
+
+Final Decision:
+Action: LONG
+Quantity: 7010
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): 'EUR')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7010
+
+==================================================
+Backtest Summary
+==================================================
+Initial Capital: 100,000.00
+Final Value: 100,007.26
+Total Return: 0.01%
+Sharpe Ratio: 0.47
+Maximum Drawdown: -0.06%
+Backtest Start Time: 2025-02-02 16:29:52
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+Backtest Start Time: 2025-02-02 16:42:04
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 10000
+            
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 10000
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 10000
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+Backtest Start Time: 2025-02-02 16:44:43
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 10000
+            
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 10000
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 10000
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+获取决策失败 (尝试 1/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 8880
+            
+
+Trade Date: 2024-09-26
+Decision based on data up to: 2024-09-25
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 8880
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 8880
+
+Processing trading day: 2024-09-27
+Using data up to: 2024-09-26 (previous trading day)
+Historical data range: 2023-09-28 to 2024-09-26
+获取决策失败 (尝试 1/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 7892
+            
+
+Trade Date: 2024-09-27
+Decision based on data up to: 2024-09-26
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 7892
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7892
+
+Processing trading day: 2024-09-30
+Using data up to: 2024-09-27 (previous trading day)
+Historical data range: 2023-10-01 to 2024-09-27
+API limit reached, waiting 8.7 seconds...
+获取决策失败 (尝试 1/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 7010
+            
+
+Trade Date: 2024-09-30
+Decision based on data up to: 2024-09-27
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 7010
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7010
+
+==================================================
+Backtest Summary
+==================================================
+Initial Capital: 100,000.00
+Final Value: 100,007.26
+Total Return: 0.01%
+Sharpe Ratio: 0.47
+Maximum Drawdown: -0.06%
+Backtest Start Time: 2025-02-02 16:46:48
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 10000
+            
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 10000
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 10000
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+获取决策失败 (尝试 1/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 8880
+            
+
+Trade Date: 2024-09-26
+Decision based on data up to: 2024-09-25
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 8880
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 8880
+
+Processing trading day: 2024-09-27
+Using data up to: 2024-09-26 (previous trading day)
+Historical data range: 2023-09-28 to 2024-09-26
+获取决策失败 (尝试 1/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 7892
+            
+
+Trade Date: 2024-09-27
+Decision based on data up to: 2024-09-26
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 7892
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7892
+
+Processing trading day: 2024-09-30
+Using data up to: 2024-09-27 (previous trading day)
+Historical data range: 2023-10-01 to 2024-09-27
+API limit reached, waiting 8.1 seconds...
+获取决策失败 (尝试 1/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 7010
+            
+
+Trade Date: 2024-09-30
+Decision based on data up to: 2024-09-27
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 7010
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' <signal>,
+                        "confidence": <confidence>,
+                        "key_factors": [<list of key technical factors>]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7010
+
+==================================================
+Backtest Summary
+==================================================
+Initial Capital: 100,000.00
+Final Value: 100,007.26
+Total Return: 0.01%
+Sharpe Ratio: 0.47
+Maximum Drawdown: -0.06%
+Backtest Start Time: 2025-02-02 19:20:48
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+Backtest Start Time: 2025-02-02 19:23:05
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+获取决策失败 (尝试 1/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 10000
+            
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 10000
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 10000
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+获取决策失败 (尝试 1/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 8880
+            
+
+Trade Date: 2024-09-26
+Decision based on data up to: 2024-09-25
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 8880
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 8880
+
+Processing trading day: 2024-09-27
+Using data up to: 2024-09-26 (previous trading day)
+Historical data range: 2023-09-28 to 2024-09-26
+获取决策失败 (尝试 1/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 7892
+            
+
+Trade Date: 2024-09-27
+Decision based on data up to: 2024-09-26
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 7892
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7892
+
+Processing trading day: 2024-09-30
+Using data up to: 2024-09-27 (previous trading day)
+Historical data range: 2023-10-01 to 2024-09-27
+API limit reached, waiting 9.1 seconds...
+获取决策失败 (尝试 1/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+获取决策失败 (尝试 2/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+
+            决策获取失败，默认使用做多策略
+            错误原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+            默认操作: 做多
+            默认数量: 7010
+            
+
+Trade Date: 2024-09-30
+Decision based on data up to: 2024-09-27
+
+Agent Analysis Results:
+
+default_signal:
+- Signal: long, Confidence: 50%
+- Analysis:
+  • 决策系统失败，使用默认做多策略
+- Decision Rationale:
+  • 获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str'
+
+Final Decision:
+Action: LONG
+Quantity: 7010
+Reason: 默认做多策略 (原因: 获取决策失败 (尝试 3/3): Invalid format specifier ' "signal direction",
+                        "confidence": "number",
+                        "key_factors": ["factor1", "factor2"]
+                    ' for object of type 'str')
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: LONG
+Quantity: 7010
+
+==================================================
+Backtest Summary
+==================================================
+Initial Capital: 100,000.00
+Final Value: 100,007.26
+Total Return: 0.01%
+Sharpe Ratio: 0.47
+Maximum Drawdown: -0.06%
+Backtest Start Time: 2025-02-02 19:44:29
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+Final Decision:
+Action: NEUTRAL
+Quantity: 0
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: NEUTRAL
+Quantity: 0
+Note: Neutral signal treated as Long for testing purposes
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+Backtest Start Time: 2025-02-02 19:44:43
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+Final Decision:
+Action: NEUTRAL
+Quantity: 0
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: NEUTRAL
+Quantity: 0
+Note: Neutral signal treated as Long for testing purposes
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+
+Trade Date: 2024-09-26
+Decision based on data up to: 2024-09-25
+
+Agent Analysis Results:
+
+Final Decision:
+Action: NEUTRAL
+Quantity: 0
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: NEUTRAL
+Quantity: 0
+Note: Neutral signal treated as Long for testing purposes
+
+Processing trading day: 2024-09-27
+Using data up to: 2024-09-26 (previous trading day)
+Historical data range: 2023-09-28 to 2024-09-26
+
+Trade Date: 2024-09-27
+Decision based on data up to: 2024-09-26
+
+Agent Analysis Results:
+
+Final Decision:
+Action: NEUTRAL
+Quantity: 0
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: NEUTRAL
+Quantity: 0
+Note: Neutral signal treated as Long for testing purposes
+
+Processing trading day: 2024-09-30
+Using data up to: 2024-09-27 (previous trading day)
+Historical data range: 2023-10-01 to 2024-09-27
+
+Trade Date: 2024-09-30
+Decision based on data up to: 2024-09-27
+
+Agent Analysis Results:
+
+Final Decision:
+Action: NEUTRAL
+Quantity: 0
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: NEUTRAL
+Quantity: 0
+Note: Neutral signal treated as Long for testing purposes
+
+==================================================
+Backtest Summary
+==================================================
+Initial Capital: 100,000.00
+Final Value: 100,000.00
+Total Return: 0.00%
+Sharpe Ratio: 0.00
+Maximum Drawdown: 0.00%
+Backtest Start Time: 2025-02-02 19:45:44
+Stock Code: EUR
+Backtest Period: 2024-09-25 to 2024-09-30
+Initial Capital: 100,000.00
+
+----------------------------------------------------------------------------------------------------
+Input parameters validated
+
+Starting backtest...
+
+Processing trading day: 2024-09-25
+Using data up to: 2024-09-24 (previous trading day)
+Historical data range: 2023-09-26 to 2024-09-24
+
+Trade Date: 2024-09-25
+Decision based on data up to: 2024-09-24
+
+Agent Analysis Results:
+
+Final Decision:
+Action: NEUTRAL
+Quantity: 0
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: NEUTRAL
+Quantity: 0
+Note: Neutral signal treated as Long for testing purposes
+
+Processing trading day: 2024-09-26
+Using data up to: 2024-09-25 (previous trading day)
+Historical data range: 2023-09-27 to 2024-09-25
+
+Trade Date: 2024-09-26
+Decision based on data up to: 2024-09-25
+
+Agent Analysis Results:
+
+Final Decision:
+Action: NEUTRAL
+Quantity: 0
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: NEUTRAL
+Quantity: 0
+Note: Neutral signal treated as Long for testing purposes
+
+Processing trading day: 2024-09-27
+Using data up to: 2024-09-26 (previous trading day)
+Historical data range: 2023-09-28 to 2024-09-26
+
+Trade Date: 2024-09-27
+Decision based on data up to: 2024-09-26
+
+Agent Analysis Results:
+
+Final Decision:
+Action: NEUTRAL
+Quantity: 0
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: NEUTRAL
+Quantity: 0
+Note: Neutral signal treated as Long for testing purposes
+
+Processing trading day: 2024-09-30
+Using data up to: 2024-09-27 (previous trading day)
+Historical data range: 2023-10-01 to 2024-09-27
+
+Trade Date: 2024-09-30
+Decision based on data up to: 2024-09-27
+
+Agent Analysis Results:
+
+Final Decision:
+Action: NEUTRAL
+Quantity: 0
+
+Final Decision (Test Mode - Neutral treated as Long):
+Action: NEUTRAL
+Quantity: 0
+Note: Neutral signal treated as Long for testing purposes
+
+==================================================
+Backtest Summary
+==================================================
+Initial Capital: 100,000.00
+Final Value: 100,000.00
+Total Return: 0.00%
+Sharpe Ratio: 0.00
+Maximum Drawdown: 0.00%

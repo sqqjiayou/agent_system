@@ -1,0 +1,8 @@
+2025-02-04 10:16:20,647 - api_calls - DEBUG - Logger initialization completed
+2025-02-04 10:16:20,648 - api_calls - INFO - API logging system started
+2025-02-04 10:16:20,649 - api_calls - INFO - ✓ 已加载环境变量: /Users/mmcao/Downloads/Free_US_Investment_Agent_System-main_beforeinverse/.env
+2025-02-04 10:16:20,649 - api_calls - INFO - ✓ Gemini 客户端初始化成功
+2025-02-04 11:23:26,236 - api_calls - DEBUG - Logger initialization completed
+2025-02-04 11:23:26,236 - api_calls - INFO - API logging system started
+2025-02-04 11:23:26,237 - api_calls - INFO - ✓ 已加载环境变量: /Users/mmcao/Downloads/Free_US_Investment_Agent_System-main_beforeinverse/.env
+2025-02-04 11:23:26,237 - api_calls - INFO - ✓ Gemini 客户端初始化成功
