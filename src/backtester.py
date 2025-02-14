@@ -9,7 +9,7 @@ from tools.api import get_market_data
 from tools.api import analyze_news_metrics_with_llm
 
 class BacktestFramework:
-    def __init__(self, start_date, end_date, ticker, event_prompt, similarity_threshold=0.5):
+    def __init__(self, start_date, end_date, ticker, event_prompt, similarity_threshold=0.65):
         self.start_date = start_date
         self.end_date = end_date
         self.ticker = ticker
@@ -71,7 +71,7 @@ class BacktestFramework:
             print(f"Failed to analyze news with LLM: {str(e)}")
             return None
 
-    def execute_trade(self, timestamp, position_size, analysis_result, last_exit_time):
+    def execute_trade(self, timestamp, position_size, analysis_result, last_exit_time, news_title):
         """
         Execute and record trade details including exit conditions
         
@@ -124,7 +124,7 @@ class BacktestFramework:
         exit_price = intraday_df.loc[exit_idx, 'close']
         trade_return = (exit_price - entry_price) / entry_price * position_size
         
-        # Record trade
+        # Modify trade_record dictionary:
         trade_record = {
             'timestamp': timestamp,
             'ticker': self.ticker,
@@ -138,11 +138,13 @@ class BacktestFramework:
             'sentiment_class': analysis_result['sentiment_class'],
             'actual_execution': actual_execution,
             'confidence': analysis_result['confidence'],
-            'importance': analysis_result['importance']
+            'importance': analysis_result['importance'],
+            'news_title': news_title  # Add news title to record
         }
         
         # Print trade details
         print(f"\nTrade Executed at {timestamp}:")
+        print(f"News: {news_title}")  # Add news title to print output
         print(f"{'Actually Executed: ' if actual_execution else 'Simulated Trade: '}")
         print(f"Position Size: {position_size}")
         print(f"Entry Price: {entry_price:.5f}")
@@ -238,15 +240,30 @@ class BacktestFramework:
         drawdowns = cum_returns - rolling_max
         max_drawdown = drawdowns.min()
         
-        # Print results
+        # Format metrics for saving
+        metrics_summary = pd.DataFrame({
+            'Metric': ['Total Trades', 'Win Rate', 'Profit/Loss Ratio', 'Sharpe Ratio', 'Maximum Drawdown', 'Final Return'],
+            'Value': [
+                f"{total_trades}",
+                f"{win_rate:.2%}",
+                f"{pl_ratio:.2f}",
+                f"{sharpe:.2f}",
+                f"{max_drawdown:.2%}",
+                f"{cum_returns.iloc[-1]:.2%}"
+            ]
+        })
+
+        # Print metrics
         print("\nPerformance Metrics:")
-        print(f"Total Trades: {total_trades}")
-        print(f"Win Rate: {win_rate:.2%}")
-        print(f"Profit/Loss Ratio: {pl_ratio:.2f}")
-        print(f"Sharpe Ratio: {sharpe:.2f}")
-        print(f"Maximum Drawdown: {max_drawdown:.2%}")
-        print(f"Final Return: {cum_returns.iloc[-1]:.2%}")
-        
+        for _, row in metrics_summary.iterrows():
+            print(f"{row['Metric']}: {row['Value']}")
+
+        # Append metrics to the existing CSV with blank row separation
+        csv_filename = f"results/backtest_records_{self.ticker}_{self.start_date}_{self.end_date}.csv"
+        with open(csv_filename, 'a', newline='') as f:
+            f.write('\n')  # Add blank row
+            metrics_summary.to_csv(f, index=False)
+
         # Store metrics for plotting
         self.performance_metrics = {
             'cum_returns': cum_returns,
@@ -256,7 +273,7 @@ class BacktestFramework:
     def plot_performance(self):
         """
         Plot performance charts including:
-        - Strategy cumulative returns starting from 0 with enhanced visualization
+        - Strategy cumulative returns vs Buy & Hold returns starting from 0 with enhanced visualization
         - Trade entry/exit points differentiated by long/short positions with price movement lines
         """
         if not hasattr(self, 'performance_metrics'):
@@ -270,16 +287,31 @@ class BacktestFramework:
         
         # Plot cumulative returns with enhanced style
         plt.subplot(2, 1, 1)
+        
+        # Strategy returns
         returns_with_start = pd.Series([0] + list(returns.values), 
                                     index=[dates[0] - pd.Timedelta(minutes=1)] + list(dates))
         
-        plt.plot(returns_with_start.index, returns_with_start.values, 
+        plt.plot(returns_with_start.index, returns_with_start.values * 100, 
                 color='blue', linewidth=2, linestyle='-', 
                 marker='o', markersize=4, label='Strategy Returns')
         
-        plt.title(f'{self.ticker} Strategy Returns', fontsize=12, pad=10)
+        # Calculate and plot Buy & Hold returns
+        trade_points = pd.concat([
+            trades[['timestamp', 'entry_price']].rename(columns={'timestamp': 'time', 'entry_price': 'price'}),
+            trades[['exit_time', 'exit_price']].rename(columns={'exit_time': 'time', 'exit_price': 'price'})
+        ]).sort_values('time')
+        
+        initial_price = trade_points.iloc[0]['price']
+        bnh_returns = (trade_points['price'] - initial_price) / initial_price * 100
+        
+        plt.plot(trade_points['time'], bnh_returns.values,
+                color='gray', linewidth=2, linestyle='--',
+                marker='o', markersize=4, label='Buy & Hold Returns')
+        
+        plt.title(f'{self.ticker} Strategy Returns vs Buy & Hold', fontsize=12, pad=10)
         plt.xlabel('Date', fontsize=10)
-        plt.ylabel('Cumulative Return', fontsize=10)
+        plt.ylabel('Cumulative Return (%)', fontsize=10)
         plt.legend(fontsize=10)
         plt.grid(True, linestyle='--', alpha=0.7)
         
@@ -396,7 +428,9 @@ class BacktestFramework:
                 news_row['publishedDate'],
                 position_size,
                 analysis_result,
-                last_exit_time
+                last_exit_time,
+                news_row['title']  # Add news title as new parameter
+
             )
 
             if result is None:
@@ -418,7 +452,7 @@ if __name__ == "__main__":
         start_date='2025-01-02',
         end_date='2025-02-13',
         ticker='EURUSD',
-        event_prompt = "US Dollar weakens as Fed rate cut expectations increase"
+        event_prompt = "ECB maintains hawkish stance on rates"
     )
     backtest.run_backtest()
 
