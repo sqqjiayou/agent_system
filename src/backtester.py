@@ -415,8 +415,8 @@ class BacktestFramework:
 
 if __name__ == "__main__":
     backtest = BacktestFramework(
-        start_date='2024-01-02',
-        end_date='2024-02-12',
+        start_date='2025-01-02',
+        end_date='2025-02-13',
         ticker='EURUSD',
         event_prompt = "US Dollar weakens as Fed rate cut expectations increase"
     )
