@@ -1,459 +1,439 @@
-#!/usr/bin/env python3
-# -- coding: utf-8 --
-"""
-本代码实现以下功能：
-1. 根据回测起始日期（例如 "2024-09-25"）与结束日期，生成所有业务日（周一~周五）。
-2. 第一个指定的交易日使用前一个（业务日）作为决策依据进行判断和操作，但所有记录都从指定的交易日开始保存。
-3. 每个交易日以当天开盘价进行交易，决策依据为前一交易日的数据。实际执行交易调整仓位，并计算每日收益。
-4. Buy & Hold 策略假设在回测开始日以当天的开盘价买入，并持有到最后一天，其每日表现以该基准计算。
-5. 各项收益指标（每日收益、累计收益、总收益、夏普比率、最大回撤等）的计算均基于组合市值。
-6. 图中所有数字以四位小数显示，保证显示精度。
-
-总体说明：
-- Daily Return（每日收益） = [(当天组合价值 / 前一交易日组合价值) - 1] × 100%
-- Cumulative Return（累计收益） = [(当天组合价值 / 初始资本) - 1] × 100%
-- Total Return（总收益）同累计收益，采用最后一天数据计算
-- Buy & Hold 策略：假设在回测开始日以当天开盘价买入，持仓数量 = 初始资本 / 当天开盘价；之后每天以当日开盘价计算持仓价值，
-  Buy & Hold Value = 持仓数量 × 当日开盘价，Buy & Hold Return = [(Buy & Hold Value / 初始资本) - 1] × 100%
-
-请根据实际情况检查 get_price_data 返回的“open”价格是否准确。
-"""
-
+import pandas as pd
+import numpy as np
 from datetime import datetime, timedelta
 import json
-import time
-import logging
-# 移除根 logger 所有 StreamHandler（禁止根 logger 对控制台输出）
-root_logger = logging.getLogger()
-for handler in root_logger.handlers[:]:
-    if isinstance(handler, logging.StreamHandler):
-        root_logger.removeHandler(handler)
-
-# 禁用 api_calls 模块的 logger
-api_logger = logging.getLogger("api_calls")
-api_logger.setLevel(logging.ERROR)
-api_logger.propagate = False
-api_logger.disabled = True
-
-import matplotlib.pyplot as plt
-import pandas as pd
 import os
-import sys
-import matplotlib
-import pandas_market_calendars as mcal
-import warnings
+import matplotlib.pyplot as plt
+from tools.api import get_forex_news
+from tools.api import get_market_data
+from tools.api import analyze_news_metrics_with_llm
 
-from main import run_hedge_fund
-from tools.api import get_price_data
-
-# 根据操作系统配置中文字体
-if sys.platform.startswith('win'):
-    matplotlib.rc('font', family='Microsoft YaHei')
-elif sys.platform.startswith('linux'):
-    matplotlib.rc('font', family='WenQuanYi Micro Hei')
-else:
-    matplotlib.rc('font', family='PingFang SC')
-
-# 允许负号显示
-matplotlib.rcParams['axes.unicode_minus'] = False
-
-# 禁用 matplotlib 与 pandas.plotting 警告
-warnings.filterwarnings('ignore', category=UserWarning, module='matplotlib')
-warnings.filterwarnings('ignore', category=UserWarning, module='pandas.plotting')
-logging.getLogger('matplotlib').setLevel(logging.ERROR)
-logging.getLogger('PIL').setLevel(logging.ERROR)
-
-
-class Backtester:
-    def __init__(self, agent, ticker, start_date, end_date, initial_capital, num_of_news=5):
-        self.agent = agent
+class BacktestFramework:
+    def __init__(self, start_date, end_date, ticker, event_prompt, similarity_threshold=0.5):
+        self.start_date = start_date
+        self.end_date = end_date
         self.ticker = ticker
-        self.start_date = start_date     # 格式 "YYYY-MM-DD", 如 "2024-09-25"
-        self.end_date = end_date         # 回测结束日期
-        self.initial_capital = initial_capital
-        self.portfolio = {"cash": initial_capital, "stock": 0}  # 当前持仓和现金
-        self.portfolio_values = []       # 记录每天 (日期、组合价值、每日收益、当天开盘价)
-        self.num_of_news = num_of_news
-        self.trade_records = []          # 记录每笔交易收益（百分比）
+        self.event_prompt = event_prompt
+        self.similarity_threshold = similarity_threshold
+        self.news_data = None
+        self.trade_records = []
 
-        # 设置日志
-        self.setup_backtest_logging()
-        self.logger = self.setup_logging()
+    def get_news_data(self):
+        """
+        Retrieve news data for specified ticker within date range.
+        Returns news data in DataFrame format from either API or local files.
+        
+        Returns:
+            pd.DataFrame: News data including publishedDate, title, text, url etc.
+                        Returns None if no data found
+        """
+        news_df = get_forex_news(
+            symbol=self.ticker,
+            start_date=self.start_date,
+            end_date=self.end_date
+        )
+        
+        if news_df is None or news_df.empty:
+            print(f"No news found for {self.ticker} between {self.start_date} and {self.end_date}")
+            return None
+        else:
+            print(f"Found {len(news_df)} news articles for {self.ticker} between {self.start_date} and {self.end_date}")
+            return news_df
 
-        # 初始化 API 调用计数
-        self._api_call_count = 0
-        self._api_window_start = time.time()
-        self._last_api_call = 0
-
-        # 初始化日历（备用，仅用于生成交易日）
-        self.nyse = mcal.get_calendar('NYSE')
-
-        # 验证输入有效性
-        self.validate_inputs()
-
-    def setup_logging(self):
-        logger = logging.getLogger('backtester')
-        logger.setLevel(logging.WARNING)
-        if not logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-            handler.setFormatter(formatter)
-            logger.addHandler(handler)
-        return logger
-
-    def validate_inputs(self):
+    def analyze_news_with_llm(self, news_row: pd.Series) -> pd.Series:
+        """
+        Analyze news using LLM through API service to calculate metrics
+        
+        Args:
+            news_row (pd.Series): Single news item containing title and text
+            event_prompt (str): Reference event for comparison
+            
+        Returns:
+            pd.Series: Analysis metrics including:
+                - similarity_score
+                - sentiment_score 
+                - sentiment_class
+                - confidence
+                - relevance
+                - impact_length
+                - importance
+                Returns None if analysis fails
+        """
         try:
-            start = datetime.strptime(self.start_date, "%Y-%m-%d")
-            end = datetime.strptime(self.end_date, "%Y-%m-%d")
-            if start >= end:
-                raise ValueError("Start date must be earlier than end date")
-            if self.initial_capital <= 0:
-                raise ValueError("Initial capital must be greater than 0")
-            if not isinstance(self.ticker, str) or len(self.ticker) == 0:
-                raise ValueError("Invalid ticker format")
-            if not (self.ticker.isalpha() or (len(self.ticker) == 6 and self.ticker.isdigit())):
-                self.backtest_logger.warning(f"Ticker {self.ticker} may be in unusual format")
-            self.backtest_logger.info("Input parameters validated")
+            return analyze_news_metrics_with_llm(
+                symbol=self.ticker,
+                start_date=self.start_date,
+                end_date=self.end_date,
+                news_row=news_row,
+                event_prompt=self.event_prompt
+            )
         except Exception as e:
-            self.backtest_logger.error(f"Input parameter validation failed: {str(e)}")
-            raise
+            print(f"Failed to analyze news with LLM: {str(e)}")
+            return None
 
-    def setup_backtest_logging(self):
-        log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'logs')
-        os.makedirs(log_dir, exist_ok=True)
-        self.backtest_logger = logging.getLogger('backtest')
-        self.backtest_logger.setLevel(logging.WARNING)
-        if self.backtest_logger.handlers:
-            self.backtest_logger.handlers.clear()
-        current_date = datetime.now().strftime('%Y%m%d')
-        backtest_period = f"{self.start_date.replace('-', '')}_{self.end_date.replace('-', '')}"
-        log_file = os.path.join(log_dir, f"backtest_{self.ticker}_{current_date}_{backtest_period}.log")
-        file_handler = logging.FileHandler(log_file, encoding='utf-8')
-        file_handler.setLevel(logging.WARNING)
-        formatter = logging.Formatter('%(message)s')
-        file_handler.setFormatter(formatter)
-        self.backtest_logger.addHandler(file_handler)
-        self.backtest_logger.info(f"Backtest Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        self.backtest_logger.info(f"Ticker: {self.ticker}")
-        self.backtest_logger.info(f"Backtest Period: {self.start_date} to {self.end_date}")
-        self.backtest_logger.info(f"Initial Capital: {self.initial_capital:,.2f}\n")
-        self.backtest_logger.info("-" * 100)
-
-    def get_previous_trading_day(self, date_str):
-        dt = pd.to_datetime(date_str)
-        prev = dt - pd.tseries.offsets.BDay(1)
-        return prev.strftime('%Y-%m-%d')
-
-    def get_agent_decision(self, current_date, lookback_start, portfolio, num_of_news):
-        max_retries = 3
-        current_time = time.time()
-        if current_time - self._api_window_start >= 60:
-            self._api_call_count = 0
-            self._api_window_start = current_time
-        if self._api_call_count >= 8:
-            wait_time = 60 - (current_time - self._api_window_start)
-            if wait_time > 0:
-                self.backtest_logger.info(f"API limit reached, waiting {wait_time:.1f} seconds...")
-                time.sleep(wait_time)
-                self._api_call_count = 0
-                self._api_window_start = time.time()
-        for attempt in range(max_retries):
-            try:
-                if self._last_api_call:
-                    time_since_last_call = time.time() - self._last_api_call
-                    if time_since_last_call < 6:
-                        time.sleep(6 - time_since_last_call)
-                self._last_api_call = time.time()
-                self._api_call_count += 1
-                result = self.agent(
-                    ticker=self.ticker,
-                    start_date=lookback_start,
-                    end_date=current_date,
-                    portfolio=portfolio,
-                    num_of_news=num_of_news
-                )
-                try:
-                    if isinstance(result, str):
-                        result = result.replace('```json\n', '').replace('\n```', '').strip()
-                        parsed_result = json.loads(result)
-                        formatted_result = {"decision": parsed_result, "analyst_signals": {}}
-                        if "agent_signals" in parsed_result:
-                            formatted_result["analyst_signals"] = {
-                                agent_name: {
-                                    "signal": signal_data.get("signal", "unknown"),
-                                    "confidence": signal_data.get("confidence", 0)
-                                }
-                                for agent_name, signal_data in parsed_result["agent_signals"].items()
-                            }
-                        return formatted_result
-                    return result
-                except json.JSONDecodeError as e:
-                    self.backtest_logger.warning(f"JSON parsing error: {str(e)}")
-                    self.backtest_logger.warning(f"Raw result: {result}")
-                    return {"decision": {"action": "neutral", "quantity": 0}, "analyst_signals": {}}
-            except Exception as e:
-                if "AFC is enabled" in str(e):
-                    self.backtest_logger.warning("AFC limit triggered, waiting 60 seconds...")
-                    time.sleep(60)
-                    self._api_call_count = 0
-                    self._api_window_start = time.time()
-                    continue
-                self.backtest_logger.warning(f"Failed to get agent decision (attempt {attempt + 1}/{max_retries}): {str(e)}")
-                if attempt == max_retries - 1:
-                    return {"decision": {"action": "neutral", "quantity": 0}, "analyst_signals": {}}
-                time.sleep(2 ** attempt)
-
-    def execute_trade(self, action, target_quantity, current_price):
+    def execute_trade(self, timestamp, position_size, analysis_result, last_exit_time):
         """
-        根据策略执行交易：
-         - "long": 目标仓位为正，差额部分以当天开盘价买入；
-         - "short": 目标仓位为负，差额部分以当天开盘价卖出；
-         - "neutral": 平仓。
-        返回实际成交数量。
+        Execute and record trade details including exit conditions
+        
+        Args:
+            timestamp: Entry time for the trade
+            position_size: Size and direction of position (-1 to 1)
+            analysis_result: Dictionary containing analysis metrics
+            last_exit_time: Time of last trade exit to check for overlapping trades
         """
-        trade = 0.0
-        current_pos = self.portfolio["stock"]
-        if action == "long":
-            target = target_quantity  # 正仓
-            delta = target - current_pos
-            if delta > 0:
-                possible = int(self.portfolio["cash"] // current_price)
-                trade = min(delta, possible)
-                self.portfolio["cash"] -= trade * current_price
-                self.portfolio["stock"] += trade
-            elif delta < 0:
-                trade = abs(delta)
-                self.portfolio["cash"] += trade * current_price
-                self.portfolio["stock"] -= trade
-            return trade
-        elif action == "short":
-            target = -target_quantity  # 负仓
-            delta = target - current_pos
-            if delta < 0:
-                trade = abs(delta)
-                self.portfolio["cash"] += trade * current_price
-                self.portfolio["stock"] -= trade
-            elif delta > 0:
-                possible = int(self.portfolio["cash"] // current_price)
-                trade = min(delta, possible)
-                self.portfolio["cash"] -= trade * current_price
-                self.portfolio["stock"] += trade
-            return trade
-        else:  # neutral
-            target = 0
-            delta = target - current_pos
-            if delta > 0:
-                possible = int(self.portfolio["cash"] // current_price)
-                trade = min(delta, possible)
-                self.portfolio["cash"] -= trade * current_price
-                self.portfolio["stock"] += trade
-            elif delta < 0:
-                trade = abs(delta)
-                self.portfolio["cash"] += trade * current_price
-                self.portfolio["stock"] -= trade
-            return trade
+        timestamp = pd.Timestamp(timestamp)
+        # Get entry price and intraday price data
+        entry_price_data, intraday_df = self.get_price(timestamp)
+        if entry_price_data is None:
+            return None
+            
+        entry_price = entry_price_data['open']
+        
+        # Determine if trade can actually be executed
+        actual_execution = True
+        if last_exit_time and timestamp < last_exit_time:
+            actual_execution = False
+        intraday_df = intraday_df[intraday_df.date > timestamp]
+
+        # Calculate exit conditions using intraday_df
+        intraday_df['returns'] = (intraday_df['close'] - entry_price) / entry_price
+        if position_size < 0:
+            intraday_df['returns'] = -intraday_df['returns']
+            
+        # Find exit point based on conditions
+        exit_mask = (
+            (intraday_df['returns'] <= self.stop_loss_limit) |
+            (intraday_df['returns'] >= self.take_profit_limit)
+        )
+        
+        time_limit_mask = (
+            intraday_df.date >= pd.Timestamp(timestamp) + pd.Timedelta(minutes=self.time_limit)
+        )
+        
+        if exit_mask.any():
+            exit_idx = exit_mask.idxmax()
+            exit_reason = 'stop_loss' if intraday_df.loc[exit_idx, 'returns'] <= self.stop_loss_limit else 'take_profit'
+        elif time_limit_mask.any():
+            exit_idx = time_limit_mask.idxmax()
+            exit_reason = 'time_limit'
+        else:
+            exit_idx = intraday_df.index[-1]
+            exit_reason = 'day_end'
+                
+        exit_time = intraday_df.loc[exit_idx, 'date']
+        exit_price = intraday_df.loc[exit_idx, 'close']
+        trade_return = (exit_price - entry_price) / entry_price * position_size
+        
+        # Record trade
+        trade_record = {
+            'timestamp': timestamp,
+            'ticker': self.ticker,
+            'action': position_size,
+            'entry_price': entry_price,
+            'exit_time': exit_time,
+            'exit_price': exit_price,
+            'exit_reason': exit_reason,
+            'return': trade_return,
+            'similarity_score': analysis_result['similarity_score'],
+            'sentiment_class': analysis_result['sentiment_class'],
+            'actual_execution': actual_execution,
+            'confidence': analysis_result['confidence'],
+            'importance': analysis_result['importance']
+        }
+        
+        # Print trade details
+        print(f"\nTrade Executed at {timestamp}:")
+        print(f"{'Actually Executed: ' if actual_execution else 'Simulated Trade: '}")
+        print(f"Position Size: {position_size}")
+        print(f"Entry Price: {entry_price:.5f}")
+        print(f"Exit Time: {exit_time}")
+        print(f"Exit Price: {exit_price:.5f}")
+        print(f"Exit Reason: {exit_reason}")
+        print(f"Return: {trade_return:.2%}")
+        print(f"Similarity Score: {analysis_result['similarity_score']:.2f}")
+        print(f"Sentiment Class: {analysis_result['sentiment_class']}")
+        print("-" * 50)
+        
+        # Update trade records DataFrame
+        self.trade_records = pd.concat([
+            self.trade_records,
+            pd.DataFrame([trade_record])
+        ], ignore_index=True)
+        
+        # Save updated records to CSV
+        os.makedirs('results', exist_ok=True)
+        csv_filename = f"results/backtest_records_{self.ticker}_{self.start_date}_{self.end_date}.csv"
+        self.trade_records.to_csv(csv_filename, index=False)
+        
+        if actual_execution:
+            return exit_time
+        return last_exit_time
+
+    def get_price(self, timestamp):
+        """
+        Get market data for a specific timestamp using get_market_data API
+        
+        Args:
+            timestamp (str): The timestamp to get market data for
+            
+        Returns:
+            pd.Series: A series containing OHLCV data for the specified timestamp
+            dataframe: A dataframe containing OHLCV data for the specified date of timestamp
+            
+        Usage:
+            price_row = get_price(timestamp)
+            close_price = price_row['close']  # Get closing price
+            open_price = price_row['open']    # Get opening price
+            high_price = price_row['high']    # Get high price
+            low_price = price_row['low']      # Get low price
+            volume = price_row['volume']      # Get trading volume
+        """
+        price_data, df = get_market_data(
+            symbol=self.ticker,
+            timestamp=timestamp
+        )
+        
+        if price_data is not None:
+            return price_data, df  # Return the entire price row and the whole day (open, high, low, close, volume)
+        else:
+            print(f"No market data available for {self.ticker} on {timestamp} (non-trading day or missing data)")
+            return None, None
+
+    def calculate_performance(self):
+        """
+        Calculate trading performance metrics including:
+        - Cumulative returns
+        - Win rate
+        - Profit/Loss ratio
+        - Sharpe ratio
+        - Maximum drawdown
+        """
+        if self.trade_records.empty:
+            print("No trades executed during backtest period")
+            return
+        # self.trade_records.set_index('timestamp', inplace=True)
+        # Filter actual executed trades
+        actual_trades = self.trade_records[self.trade_records['actual_execution']]
+        
+        # Calculate metrics
+        total_trades = len(actual_trades)
+        winning_trades = len(actual_trades[actual_trades['return'] > 0])
+        win_rate = winning_trades / total_trades if total_trades > 0 else 0
+        
+        # Calculate P/L ratio
+        avg_win = actual_trades[actual_trades['return'] > 0]['return'].mean()
+        avg_loss = abs(actual_trades[actual_trades['return'] < 0]['return'].mean())
+        pl_ratio = avg_win / avg_loss if avg_loss != 0 else float('inf')
+        
+        # Calculate cumulative returns
+        actual_trades['cum_returns'] = (1 + actual_trades['return']).cumprod() - 1
+        cum_returns = actual_trades['cum_returns']
+        
+        # Calculate Sharpe ratio (assuming 0 risk-free rate)
+        returns_series = actual_trades['return']
+        sharpe = np.sqrt(252) * returns_series.mean() / returns_series.std() if len(returns_series) > 1 else 0
+        
+        # Calculate max drawdown
+        rolling_max = cum_returns.expanding().max()
+        drawdowns = cum_returns - rolling_max
+        max_drawdown = drawdowns.min()
+        
+        # Print results
+        print("\nPerformance Metrics:")
+        print(f"Total Trades: {total_trades}")
+        print(f"Win Rate: {win_rate:.2%}")
+        print(f"Profit/Loss Ratio: {pl_ratio:.2f}")
+        print(f"Sharpe Ratio: {sharpe:.2f}")
+        print(f"Maximum Drawdown: {max_drawdown:.2%}")
+        print(f"Final Return: {cum_returns.iloc[-1]:.2%}")
+        
+        # Store metrics for plotting
+        self.performance_metrics = {
+            'cum_returns': cum_returns,
+            'trades': actual_trades
+        }
+
+    def plot_performance(self):
+        """
+        Plot performance charts including:
+        - Strategy cumulative returns starting from 0 with enhanced visualization
+        - Trade entry/exit points differentiated by long/short positions with price movement lines
+        """
+        if not hasattr(self, 'performance_metrics'):
+            return
+        
+        returns = self.performance_metrics['cum_returns']
+        trades = self.performance_metrics['trades']
+        dates = trades['timestamp']
+        
+        plt.figure(figsize=(15, 10))
+        
+        # Plot cumulative returns with enhanced style
+        plt.subplot(2, 1, 1)
+        returns_with_start = pd.Series([0] + list(returns.values), 
+                                    index=[dates[0] - pd.Timedelta(minutes=1)] + list(dates))
+        
+        plt.plot(returns_with_start.index, returns_with_start.values, 
+                color='blue', linewidth=2, linestyle='-', 
+                marker='o', markersize=4, label='Strategy Returns')
+        
+        plt.title(f'{self.ticker} Strategy Returns', fontsize=12, pad=10)
+        plt.xlabel('Date', fontsize=10)
+        plt.ylabel('Cumulative Return', fontsize=10)
+        plt.legend(fontsize=10)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        
+        # Plot price chart with entry/exit points and connecting lines
+        plt.subplot(2, 1, 2)
+        
+        # Plot long trades with connecting lines
+        long_trades = trades[trades['action'] > 0]
+        if not long_trades.empty:
+            for _, trade in long_trades.iterrows():
+                plt.plot([trade['timestamp'], trade['exit_time']], 
+                        [trade['entry_price'], trade['exit_price']], 
+                        'k--', alpha=0.3)
+            plt.plot(long_trades['timestamp'], long_trades['entry_price'], 
+                    '^', color='green', label='Long Entry', markersize=10)
+            plt.plot(long_trades['exit_time'], long_trades['exit_price'], 
+                    'v', color='lightgreen', label='Long Exit', markersize=10)
+        
+        # Plot short trades with connecting lines
+        short_trades = trades[trades['action'] < 0]
+        if not short_trades.empty:
+            for _, trade in short_trades.iterrows():
+                plt.plot([trade['timestamp'], trade['exit_time']], 
+                        [trade['entry_price'], trade['exit_price']], 
+                        'k--', alpha=0.3)
+            plt.plot(short_trades['timestamp'], short_trades['entry_price'], 
+                    '^', color='red', label='Short Entry', markersize=10)
+            plt.plot(short_trades['exit_time'], short_trades['exit_price'], 
+                    'v', color='pink', label='Short Exit', markersize=10)
+        
+        plt.title(f'{self.ticker} Trade Entry/Exit Points', fontsize=12, pad=10)
+        plt.xlabel('Date', fontsize=10)
+        plt.ylabel('Price', fontsize=10)
+        plt.legend(fontsize=10)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        
+        plt.tight_layout()
+        
+        # Save plot
+        plt.savefig(f'results/performance_{self.ticker}_{self.start_date}_{self.end_date}.png')
+        plt.close()
 
     def run_backtest(self):
-        # 生成交易日期：起点为 (start_date - 1个业务日)；
-        # 这样第一个【实际交易日】即为 self.start_date，其决策依据为前一交易日的数据。
-        start_dt = pd.to_datetime(self.start_date) - pd.tseries.offsets.BDay(1)
-        end_dt = pd.to_datetime(self.end_date)
-        dates = pd.date_range(start=start_dt, end=end_dt, freq='B')
-
-        self.trade_records = []
-        last_trade_value = self.initial_capital
-        self.backtest_logger.info("\nStarting backtest...")
-        print(f"{'Date':<12} {'Ticker':<6} {'Action':<6} {'Qty':>8} {'Price':>12} {'Cash':>15} {'Stock':>8} {'Total':>15} {'Bull':>8} {'Bear':>8} {'Neutral':>8}")
-        print("-" * 110)
-        # 注意：循环从 i=1 开始，i=0 仅作为决策参考日期，不记录实际交易数据
-        for i in range(1, len(dates)):
-            current_date_str = dates[i].strftime("%Y-%m-%d")
-            decision_date_str = dates[i-1].strftime("%Y-%m-%d")
-            try:
-                df = get_price_data(self.ticker, current_date_str, current_date_str)
-                if df is None or df.empty:
-                    self.backtest_logger.warning(f"No price data for {current_date_str}, skipping...")
-                    continue
-                current_price = df.iloc[0]['open']
-            except Exception as e:
-                self.backtest_logger.error(f"Error getting price data for {current_date_str}: {str(e)}")
-                continue
-
-            output = self.get_agent_decision(decision_date_str, (dates[i-1] - pd.Timedelta(days=365)).strftime("%Y-%m-%d"), self.portfolio, self.num_of_news)
-            if output.get("analyst_signals"):
-                self.backtest_logger.info("\nAgent Analysis Results:")
-                for agent_name, signal in output["analyst_signals"].items():
-                    self.backtest_logger.info(f"\n{agent_name}: - Signal: {signal.get('signal', 'unknown')}, Confidence: {signal.get('confidence', 0)*100:.2f}%")
-                    if "analysis" in signal:
-                        self.backtest_logger.info("  Analysis: " + str(signal["analysis"]))
-                    if "reason" in signal:
-                        self.backtest_logger.info("  Reasoning: " + str(signal["reason"]))
-            agent_decision = output.get("decision", {"action": "neutral", "quantity": 0})
-            action, target_qty = agent_decision.get("action", "neutral"), agent_decision.get("quantity", 0)
-            self.backtest_logger.info(f"\nFinal Decision: {action.upper()}, Target Quantity: {target_qty}")
-            if "reasoning" in agent_decision:
-                self.backtest_logger.info("Decision Reasoning: " + str(agent_decision["reasoning"]))
-            executed_quantity = self.execute_trade(action, target_qty, current_price)
-            total_value = self.portfolio["cash"] + self.portfolio["stock"] * current_price
-            self.portfolio["portfolio_value"] = total_value
-            previous_value = self.portfolio_values[-1]["Portfolio Value"] if self.portfolio_values else self.initial_capital
-            daily_return = ((total_value / previous_value) - 1) * 100
-            self.portfolio_values.append({
-                "Date": current_date_str,
-                "Portfolio Value": total_value,
-                "Daily Return": daily_return,
-                "Price": current_price
-            })
-            if executed_quantity > 0:
-                trade_return = ((total_value / last_trade_value) - 1) * 100
-                self.trade_records.append({"Date": current_date_str, "Return": trade_return})
-                last_trade_value = total_value
-            bull_count = sum(1 for signal in output.get("analyst_signals", {}).values() if signal.get("signal") in ["long", "neutral"])
-            bear_count = sum(1 for signal in output.get("analyst_signals", {}).values() if signal.get("signal") == "short")
-            neutral_count = sum(1 for signal in output.get("analyst_signals", {}).values() if signal.get("signal") == "neutral")
-            self.backtest_logger.info(f"\nFinal Decision (Test - Neutral treated as Long): {action.upper()}, Qty: {target_qty}")
-            print(f"{current_date_str:<12} {self.ticker:<6} {action:<6} {executed_quantity:>8} {current_price:>12.4f} {self.portfolio['cash']:>15.4f} {self.portfolio['stock']:>8} {total_value:>15.4f} {bull_count:>8} {bear_count:>8} {neutral_count:>8}")
-        self.analyze_performance()
-
-    def analyze_performance(self):
-        """输出各项绩效指标，并分别保存两个图：
-        1. 总横向资本变化图；
-        2. 累计收益图（同时显示 Buy & Hold Return 曲线）。
-        此外，将所有 performance metrics（含 Buy & Hold 对应指标）打印并保存为 Excel 文件。
-        说明：
-        - Daily Return: 当天组合价值相对于前一交易日的比例变动 ×100%
-        - Cumulative Return: (当前组合价值/初始资本 - 1) ×100%
-        - Buy & Hold: 假设在回测开始日以开盘价买入，持仓数 = 初始资本 / 当日开盘价；
-            每日持仓价值 = 持仓数 × 当日开盘价，Buy & Hold Return = [(持仓价值/初始资本) - 1] ×100%
         """
-        if not self.portfolio_values:
-            self.backtest_logger.warning("No portfolio values to analyze")
+        Run backtest simulation based on news analysis and trading rules
+        
+        Trading Logic:
+        1. Analyze each news item for trading signals
+        2. Open positions based on similarity and sentiment scores
+        3. Track and exit positions based on stop-loss, take-profit, or time limits
+        4. Record all trades including simulated ones that weren't executed
+        """
+        # Initialize trading parameters
+        self.stop_loss_limit = -0.003  # -0.3% stop loss
+        self.take_profit_limit = 0.005  # 0.5% take profit
+        self.time_limit = 30  # 30 minutes max holding time
+        
+        # Get news data
+        self.news_data = self.get_news_data()
+        if self.news_data is None:
             return
-        try:
-            # 创建 results 文件夹
-            results_folder = "results"
-            if not os.path.exists(results_folder):
-                os.makedirs(results_folder)
                 
-            # 使用内置 "ggplot" 风格，避免使用 seaborn 风格
-            plt.style.use('ggplot')
-
-            performance_df = pd.DataFrame(self.portfolio_values)
-            performance_df['Date'] = pd.to_datetime(performance_df['Date'])
-            # 此处数据仅来自交易日 (>= self.start_date)
-            performance_df = performance_df.sort_values("Date").set_index("Date")
-            performance_df["Cumulative Return"] = (performance_df["Portfolio Value"] / self.initial_capital - 1) * 100
-            performance_df["Portfolio Value (K)"] = performance_df["Portfolio Value"] / 1000
-
-            # Buy & Hold：以回测开始日的开盘价作为基准
-            trade_start_date = pd.to_datetime(self.start_date)
-            if trade_start_date in performance_df.index:
-                initial_price_for_bh = performance_df.loc[trade_start_date, "Price"]
+        # Initialize trade records DataFrame
+        self.trade_records = pd.DataFrame(columns=[
+            'timestamp', 'ticker', 'action', 'entry_price', 'exit_time', 'exit_price',
+            'exit_reason', 'return', 'similarity_score', 'sentiment_class',
+            'actual_execution', 'confidence', 'importance'
+        ])
+        
+        last_exit_time = None
+        
+        print(f"\nStarting backtest for {self.ticker} from {self.start_date} to {self.end_date}")
+        print("=" * 80)
+        
+        # Analyze each news item
+        for _, news_row in self.news_data.iterrows():
+            required_metrics = ['similarity_score', 'sentiment_score', 'sentiment_class',
+                            'confidence', 'relevance', 'impact_length', 'importance']
+                            
+            if all(metric in news_row.index and pd.notna(news_row[metric]) for metric in required_metrics):
+                analysis_result = news_row[required_metrics]
             else:
-                initial_price_for_bh = performance_df.iloc[0]["Price"]
-            bh_df = performance_df[performance_df.index >= trade_start_date].copy()
-            buy_and_hold_value = (self.initial_capital / initial_price_for_bh) * bh_df["Price"]
-            buy_and_hold_return = (buy_and_hold_value / self.initial_capital - 1) * 100
-
-            # 图1：展示组合资本变化 (Portfolio Value)
-            fig1, ax1 = plt.subplots(figsize=(12, 8))
-            title1 = f"Portfolio Value Change - {self.ticker} ({self.start_date} to {self.end_date})"
-            ax1.set_title(title1, fontsize=16)
-            ax1.plot(performance_df.index, performance_df["Portfolio Value (K)"], label="Portfolio Value", 
-                    marker='o', markersize=6, color='#1f77b4')
-            ax1.set_ylabel("Portfolio Value (K)", fontsize=14)
-            ax1.set_xlabel("Date", fontsize=14)
-            for x, y in zip(performance_df.index, performance_df["Portfolio Value (K)"]):
-                ax1.annotate(f"{y:.4f}K", (x, y), textcoords="offset points", xytext=(0, 10), 
-                            ha='center', fontsize=8)
-            ax1.legend(fontsize=12)
-            fig1.autofmt_xdate()
-            fig1.tight_layout()
-            capital_filename = os.path.join(results_folder, f"backtest_capital_{self.ticker}_{self.start_date}_{self.end_date}.png")
-            fig1.savefig(capital_filename, bbox_inches='tight', dpi=300)
-            plt.close(fig1)
-
-            # 图2：展示累计收益（Cumulative Return）及 Buy & Hold Return
-            fig2, ax2 = plt.subplots(figsize=(12, 8))
-            title2 = f"Cumulative Return Change - {self.ticker} ({self.start_date} to {self.end_date})"
-            ax2.set_title(title2, fontsize=16)
-            ax2.plot(performance_df.index, performance_df["Cumulative Return"], label="Portfolio Return", 
-                    marker='o', markersize=6, color='#2ca02c')
-            ax2.plot(bh_df.index, buy_and_hold_return, label="Buy & Hold Return", 
-                    marker='o', markersize=6, color='#d62728', linestyle='--')
-            ax2.set_ylabel("Cumulative Return (%)", fontsize=14)
-            ax2.set_xlabel("Date", fontsize=14)
-            for x, y in zip(performance_df.index, performance_df["Cumulative Return"]):
-                ax2.annotate(f"{y:.4f}%", (x, y), textcoords="offset points", xytext=(0, 10), 
-                            ha='center', fontsize=8)
-            ax2.legend(fontsize=12)
-            fig2.autofmt_xdate()
-            fig2.tight_layout()
-            return_filename = os.path.join(results_folder, f"backtest_return_{self.ticker}_{self.start_date}_{self.end_date}.png")
-            fig2.savefig(return_filename, bbox_inches='tight', dpi=300)
-            plt.close(fig2)
-
-            # 计算总体指标
-            total_return = (self.portfolio["portfolio_value"] - self.initial_capital) / self.initial_capital
-            metrics = []
-            metrics.append(f"Initial Capital: {self.initial_capital:.4f}")
-            metrics.append(f"Final Portfolio Value: {self.portfolio['portfolio_value']:.4f}")
-            metrics.append(f"Portfolio Total Return: {(total_return * 100):.4f}%")
-            daily_returns = performance_df["Daily Return"] / 100
-            mean_daily_return = daily_returns.mean()
-            std_daily_return = daily_returns.std()
-            sharpe_ratio = (mean_daily_return / std_daily_return) * (252 ** 0.5) if std_daily_return != 0 else 0
-            metrics.append(f"Portfolio Sharpe Ratio: {sharpe_ratio:.4f}")
-            rolling_max = performance_df["Portfolio Value"].cummax()
-            drawdown = (performance_df["Portfolio Value"] / rolling_max - 1) * 100
-            max_drawdown = drawdown.min()
-            metrics.append(f"Portfolio Maximum Drawdown: {max_drawdown:.4f}%")
+                analysis_result = self.analyze_news_with_llm(news_row=news_row)
+                if analysis_result is None:
+                    continue
+                        
+            if abs(analysis_result['similarity_score']) <= self.similarity_threshold:
+                continue
+                    
+            # Determine position size
+            position_size = 0
+            if analysis_result['similarity_score'] > 0:
+                if analysis_result['sentiment_class'] == 1:
+                    position_size = 1
+                elif analysis_result['sentiment_class'] == 0:
+                    position_size = 0.5
+            else:
+                if analysis_result['sentiment_class'] == -1:
+                    position_size = -1
+                elif analysis_result['sentiment_class'] == 0:
+                    position_size = -0.5
+                        
+            if position_size == 0:
+                continue
             
-            # Buy & Hold Metrics
-            bh_final_value = buy_and_hold_value.iloc[-1]
-            bh_total_return = (bh_final_value / self.initial_capital - 1) * 100
-            metrics.append(f"Buy & Hold Final Value: {bh_final_value:.4f}")
-            metrics.append(f"Buy & Hold Total Return: {bh_total_return:.4f}%")
+            # Print triggering news title
+            print(f"\nTrading Signal Detected:")
+            print(f"News Title: {news_row['title']}")
+            print(f"Time: {news_row['publishedDate']}")
+            print("-" * 50)
+                    
+            # Execute trade
+            result = self.execute_trade(
+                news_row['publishedDate'],
+                position_size,
+                analysis_result,
+                last_exit_time
+            )
 
-            # 打印所有指标
-            self.backtest_logger.info("\n" + "=" * 50)
-            self.backtest_logger.info("Backtest Summary")
-            self.backtest_logger.info("=" * 50)
-            for m in metrics:
-                self.backtest_logger.info(m)
-                print(m)
-            
-            # 将指标保存为 Excel 文件
-            metrics_df = pd.DataFrame(metrics, columns=["Metric"])
-            excel_filename = os.path.join(results_folder, f"backtest_metrics_{self.ticker}_{self.start_date}_{self.end_date}.xlsx")
-            metrics_df.to_excel(excel_filename, index=False)
+            if result is None:
+                print(f"No market data available for trade at {news_row['publishedDate']}, skipping this signal")
+                print("-" * 50)
+                continue
+            else:
+                last_exit_time = result
+        
+        # Calculate and display performance metrics
+        self.calculate_performance()
+        self.plot_performance()
 
-            return performance_df
-        except Exception as e:
-            self.backtest_logger.error(f"Error in performance analysis: {str(e)}")
-            print(f"Error in performance analysis: {str(e)}")
-            return None
+
 
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Run backtest simulation')
-    parser.add_argument('--ticker', type=str, required=False, default='CAD', help='FX code (e.g., JPY)')
-    parser.add_argument('--end-date', type=str, default='2025-02-04', help='End date (YYYY-MM-DD)')
-    parser.add_argument('--start-date', type=str, default='2025-01-02', help='Start date (YYYY-MM-DD)')
-    parser.add_argument('--initial-capital', type=float, default=100000, help='Initial capital (default: 100000)')
-    parser.add_argument('--num-of-news', type=int, default=5, help='Number of news articles to analyze (default: 5)')
-
-    args = parser.parse_args()
-
-    backtester = Backtester(
-        agent=run_hedge_fund,
-        ticker=args.ticker,
-        start_date=args.start_date,
-        end_date=args.end_date,
-        initial_capital=args.initial_capital,
-        num_of_news=args.num_of_news
+    backtest = BacktestFramework(
+        start_date='2024-01-02',
+        end_date='2024-02-12',
+        ticker='EURUSD',
+        event_prompt = "US Dollar weakens as Fed rate cut expectations increase"
     )
+    backtest.run_backtest()
 
-    backtester.run_backtest()
+    """
+    event_prompt examples for EURUSD:
+    Bullish EUR:
+    "US Dollar weakens as Fed rate cut expectations increase"
+    "US economic data disappoints expectations"
+    "ECB maintains hawkish stance on rates"
+    "German/Eurozone economic data beats expectations"
+
+    Bearish EUR:
+    "US PMI/ISM data beats expectations while Eurozone PMIs remain weak"
+    "US Core PCE/CPI data comes in hotter than expected"
+    "Strong US jobs data pressures EUR"
+    "ECB rate cut expectations increase"
+    """
+    

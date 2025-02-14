@@ -1,165 +1,219 @@
 import os
-import json
-from datetime import datetime, timedelta
 import logging
 import pandas as pd
-from tools.openrouter_config import get_chat_completion
+from datetime import datetime
+from openrouter_config import get_chat_completion
 
+# Set up logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
-def get_stock_news(symbol: str, date: str = None, max_news: int = 10) -> list:
-    """从本地news_data文件夹获取新闻数据"""
+import requests
+import pandas as pd
+from datetime import datetime
+
+# 设定日期范围
+start_date = "2025-02-01"
+end_date = "2025-02-03"
+
+# 构建 API URL
+base_url = "https://financialmodelingprep.com/api/v4/forex_news"
+params = {
+    "symbol": "EURUSD",
+    "from": start_date,
+    "to": end_date,
+    "apikey": os.getenv("FMP_API_KEY")
+}
+
+# 发送请求
+response = requests.get(url=base_url, params=params)
+
+# 转换为 DataFrame
+df = pd.DataFrame(response.json())
+
+# 显示结果
+df
+
+def get_headlines_excel(start_date: str, end_date: str) -> pd.DataFrame:
+    """
+    Reads the Excel file 'news.xlsx' from the 'news_data' folder and filters
+    the news headlines that fall between the specified start and end dates.
+
+    Parameters:
+    - start_date: The start date as a string in 'YYYY-MM-DD' format.
+    - end_date: The end date as a string in 'YYYY-MM-DD' format.
+
+    Returns:
+    - A pandas DataFrame with the filtered news headlines.
+    """
     try:
-        # 如果没有提供日期，使用当前日期
-        if date is None:
-            date = datetime.now().strftime("%Y-%m-%d")
-            
-        # 构建新闻文件路径
-        date_no_dash = date.replace("-", "")
-        news_file = os.path.join("news_data", f"{symbol}_{date_no_dash}.csv")
+        excel_path = os.path.join("news_data", "news.xlsx")
+        if not os.path.exists(excel_path):
+            logger.error(f"Excel file {excel_path} does not exist.")
+            return pd.DataFrame()
         
-        if not os.path.exists(news_file):
-            logger.warning(f"No news file found for {symbol} on {date}")
-            return []
-            
-        # 读取CSV文件
-        df = pd.read_csv(news_file)
+        # Read the Excel file
+        df = pd.read_excel(excel_path)
         
-        # 处理新闻数据
-        news_list = []
-        for _, row in df.iterrows():
-            try:
-                # 获取内容
-                content = str(row['content']).strip()
-                if not content:
-                    continue
-                    
-                # 处理标题
-                title = str(row['title']).strip()
-                if not title:
-                    # 如果标题为空，使用内容的第一句话作为标题
-                    first_sentence = content.split('。')[0].split('！')[0].split('？')[0]
-                    title = first_sentence[:50] + ('...' if len(first_sentence) > 50 else '')
-                
-                # 处理时间戳
-                update_time = row['updateTimestamp'] if isinstance(row['updateTimestamp'], str) else None
-                
-                news_item = {
-                    "title": title,
-                    "content": content,
-                    "publish_time": update_time or str(row.get('date', date)),
-                    "source": "FX News",
-                    "relatedSymbols": str(row.get('relatedSymbols', '')),
-                    "trade_date": str(row.get('trade_date', date))
-                }
-                
-                news_list.append(news_item)
-                logger.info(f"Successfully processed news: {news_item['title']}")
-                
-            except Exception as e:
-                logger.error(f"Failed to process news item: {e}")
+        # Check for necessary column 'Date'
+        if 'Date' not in df.columns:
+            logger.error("Column 'Date' not found in the Excel file.")
+            return pd.DataFrame()
+        
+        # Convert the 'Date' column to datetime objects
+        df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+        
+        # Convert the input dates into datetime objects
+        start_dt = pd.to_datetime(start_date)
+        end_dt = pd.to_datetime(end_date)
+        
+        # Filter rows that fall between start_dt and end_dt (inclusive)
+        filtered_df = df[(df['Date'] >= start_dt) & (df['Date'] <= end_dt)]
+        logger.info(f"Found {len(filtered_df)} headlines between {start_date} and {end_date}.")
+        return filtered_df
+    except Exception as e:
+        logger.error(f"Error reading or filtering Excel file: {e}")
+        return pd.DataFrame()
+
+def update_news_similarity(event_prompt: str, start_date: str, end_date: str, threshold: float = 0.5) -> None:
+    """
+    Updates the Excel file by performing a similarity analysis for each news headline 
+    within the specified date range. Each headline is compared to the provided event_prompt 
+    using a LLM, and the similarity score is inserted into a new (or existing) column 
+    'Similarity_score'. Headlines that already have a similarity score are skipped.
+
+    For each headline, if the absolute similarity score is greater than the threshold, 
+    the Date, Headline, and the resulting similarity score are printed.
+
+    Parameters:
+    - event_prompt: A string that describes the event prompt to which the headlines are compared.
+    - start_date: The starting date as a string in 'YYYY-MM-DD' format.
+    - end_date: The ending date as a string in 'YYYY-MM-DD' format.
+    - threshold: A float threshold for printing headlines with significant similarity (default is 0.5).
+    """
+    try:
+        excel_path = os.path.join("news_data", "news.xlsx")
+        if not os.path.exists(excel_path):
+            logger.error(f"Excel file {excel_path} does not exist.")
+            return
+
+        # Read the Excel file into a DataFrame
+        df = pd.read_excel(excel_path)
+        
+        # Check for the required columns 'Date' and 'Headline'
+        if 'Date' not in df.columns or 'Headline' not in df.columns:
+            logger.error("Required columns 'Date' and/or 'Headline' not found in the Excel file.")
+            return
+        
+        # Convert the 'Date' column to datetime type
+        df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+        start_dt = pd.to_datetime(start_date)
+        end_dt = pd.to_datetime(end_date)
+        
+        # Create a mask for news within the date range
+        date_mask = (df['Date'] >= start_dt) & (df['Date'] <= end_dt)
+        df_filtered = df.loc[date_mask].copy()
+        
+        logger.info(f"Processing {len(df_filtered)} headlines within the date range.")
+        
+        # If 'Similarity_score' column does not exist, create it with empty values
+        if 'Similarity_score' not in df.columns:
+            df['Similarity_score'] = pd.NA
+        
+        # Prepare the system message for similarity analysis with detailed scoring guidelines
+        system_message = {
+            "role": "system",
+            "content": (
+                "You are a professional forex market analyst with expertise in data analysis. "
+                "You will be provided with a news headline and an event prompt. Analyze the similarity "
+                "between the news headline and event prompt based on the following scoring guidelines:\n\n"
+                "Scoring Guidelines:\n"
+                "1. Score should be between -1 and 1.\n"
+                "2. Score 1: Headline is highly similar and has the same directional impact.\n"
+                "3. Score -1: Headline is highly similar but has the opposite directional impact.\n"
+                "4. Score 0: Headline is unrelated to the event.\n"
+                "5. Most headlines should score close to 0 unless clearly related.\n"
+                "6. Use intermediate values only when partial similarity exists.\n\n"
+                "Return only a number between -1 and 1 with no explanation."
+            )
+        }
+        
+        # Process each row in the filtered DataFrame
+        for idx in df_filtered.index:
+            # Skip headlines that already have a similarity score
+            if pd.notna(df.loc[idx, 'Similarity_score']):
                 continue
+
+            headline = str(df.loc[idx, 'Headline']).strip()
+            if not headline:
+                logger.warning(f"Empty headline at index {idx}; skipping similarity analysis.")
+                continue
+
+            # Construct the user message for LLM with the headline and event_prompt
+            user_message = {
+                "role": "user",
+                "content": (
+                    f"Please analyze the similarity between the following news headline and event prompt.\n\n"
+                    f"Headline: {headline}\n\n"
+                    f"Event Prompt: {event_prompt}\n\n"
+                    "Return only a number between -1 and 1 with no explanation."
+                )
+            }
+            
+            try:
+                # Get similarity score from the LLM
+                result = get_chat_completion([system_message, user_message])
+                if result is None:
+                    similarity_score = 0.0
+                else:
+                    similarity_score = float(result.strip())
+                    # Ensure score is within the range -1 to 1
+                    similarity_score = max(-1.0, min(1.0, similarity_score))
+            except Exception as e:
+                logger.error(f"Error processing similarity for headline at index {idx}: {e}")
+                similarity_score = 0.0
+            
+            # Update the DataFrame with the similarity score
+            df.loc[idx, 'Similarity_score'] = similarity_score
+            
+            # If the absolute similarity score exceeds the threshold, print its details
+            if abs(similarity_score) > threshold:
+                news_date = df.loc[idx, 'Date']
+                formatted_date = news_date.strftime("%Y-%m-%d") if pd.notna(news_date) else "Unknown Date"
+                print(f"Date: {formatted_date} | Headline: {headline} | Similarity Score: {similarity_score}")
+                logger.info(f"Significant similarity for row index {idx}: Score {similarity_score}")
                 
-        # 按发布时间排序
-        try:
-            news_list.sort(key=lambda x: x["publish_time"], reverse=True)
-        except Exception as e:
-            logger.error(f"Failed to sort news list: {e}")
-        
-        # 限制返回数量
-        return news_list[:max_news]
+        # Write the updated DataFrame (including the new similarity scores) back to the Excel file
+        df.to_excel(excel_path, index=False)
+        logger.info("News Excel file updated with similarity scores.")
         
     except Exception as e:
-        logger.error(f"Failed to get news data: {e}")
-        return []
+        logger.error(f"Error processing news similarity: {e}")
+        return
 
-def get_news_sentiment(news_list: list, date: str = None, num_of_news: int = 5) -> float:
-    """分析新闻情感倾向，支持中英文"""
-    if not news_list:
-        return 0.0
+if __name__ == "__main__":
+    # # Example usage:
+    # EVENT_PROMPT = "PBOC sets stronger yuan fixing than expected."
+    # START_DATE = "2018-01-01"
+    # END_DATE = "2018-02-07"
+    # THRESHOLD = 0.5
 
-    if date is None:
-        date = datetime.now().strftime("%Y-%m-%d")
+    # # First, you could retrieve headlines (if needed) using get_headlines_excel()
+    # headlines_df = get_headlines_excel(START_DATE, END_DATE)
+    # logger.info(f"Retrieved {len(headlines_df)} headlines for the given date range.")
+    
+    # # Update the Excel file by analyzing similarity between each headline and the event prompt
+    # update_news_similarity(EVENT_PROMPT, START_DATE, END_DATE, THRESHOLD)
+    # 发送请求
+    response = requests.get(url=base_url, params=params)
 
-    # 检查缓存
-    cache_file = "src/data/sentiment_cache.json"
-    os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+    # 转换为 DataFrame
+    df = pd.DataFrame(response.json())
 
-    if os.path.exists(cache_file):
-        try:
-            with open(cache_file, 'r', encoding='utf-8') as f:
-                cache = json.load(f)
-                if date in cache:
-                    return cache[date]
-        except Exception as e:
-            logger.error(f"Failed to read sentiment cache: {e}")
-            cache = {}
-    else:
-        cache = {}
-
-    # 准备系统消息
-    system_message = {
-        "role": "system",
-        "content": """You are a professional forex market analyst specializing in news sentiment analysis. 
-        You can analyze both English and Chinese news articles and provide a sentiment score between -1 and 1:
-        
-        Sentiment scale (情感量表):
-        - 1: Extremely bullish (极度看多) - 重大利好消息，强有力的政策支持
-        - 0.5 to 0.9: Bullish (看多) - 积极的经济指标，支持性货币政策
-        - 0.1 to 0.4: Slightly bullish (略微看多) - 小幅利好发展
-        - 0: Neutral (中性) - 常规更新，信号混合
-        - -0.1 to -0.4: Slightly bearish (略微看空) - 小幅利空发展
-        - -0.5 to -0.9: Bearish (看空) - 负面经济数据，紧缩政策
-        - -1: Extremely bearish (极度看空) - 重大经济危机，严厉政策收紧
-
-        Focus on (关注重点):
-        1. Economic indicators (经济指标)
-        2. Monetary policy (货币政策)
-        3. Political developments (政治发展)
-        4. Market sentiment (市场情绪)
-        5. Global trade relations (全球贸易关系)
-        6. Currency specific factors (货币特定因素)
-
-        Consider (考虑因素):
-        1. News reliability (新闻可靠性)
-        2. Market impact (市场影响)
-        3. Timing relevance (时效性)
-        4. Global market context (全球市场背景)"""
-    }
-
-    # 准备新闻内容
-    news_content = "\n\n".join([
-        f"Title (标题): {news['title']}\n"
-        f"Time (时间): {news['publish_time']}\n"
-        f"Content (内容): {news['content']}"
-        for news in news_list[:num_of_news]
-    ])
-
-    user_message = {
-        "role": "user",
-        "content": f"Please analyze the sentiment of the following forex market news (请分析以下外汇市场新闻的情感倾向):\n\n{news_content}\n\nPlease return only a number between -1 and 1, no explanation needed."
-    }
-
-    try:
-        # 获取LLM分析结果
-        result = get_chat_completion([system_message, user_message])
-        if result is None:
-            return 0.0
-
-        # 解析结果
-        sentiment_score = float(result.strip())
-        sentiment_score = max(-1.0, min(1.0, sentiment_score))
-
-        # 缓存结果
-        cache[date] = sentiment_score
-        try:
-            with open(cache_file, 'w', encoding='utf-8') as f:
-                json.dump(cache, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            logger.error(f"Error writing cache: {e}")
-
-        return sentiment_score
-
-    except Exception as e:
-        logger.error(f"Error analyzing news sentiment: {e}")
-        return 0.0
+    # 显示结果
+    print(df)

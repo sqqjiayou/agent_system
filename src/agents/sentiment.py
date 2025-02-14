@@ -10,8 +10,9 @@ def sentiment_agent(state: AgentState):
     show_reasoning = state["metadata"]["show_reasoning"]
     data = state["data"]
     symbol = data["ticker"]
+    direction = data["direction"]
+    event_prompt = data["event_prompt"]
     current_date = data["end_date"]
-
     # 获取新闻数量，默认为5
     num_of_news = data.get("num_of_news", 5)
 

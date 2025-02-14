@@ -15,7 +15,7 @@ load_dotenv()  # 加载 .env 文件中的环境变量
 
 
 ##### Run the Hedge Fund #####
-def run_hedge_fund(ticker: str, start_date: str, end_date: str, portfolio: dict, show_reasoning: bool = False, num_of_news: int = 5):
+def run_hedge_fund(ticker: str, start_date: str, end_date: str, portfolio: dict, show_reasoning: bool = False, direction: str = "long", event_prompt: str = "PBOC sets stronger yuan fixing than expected"):
     final_state = app.invoke(
         {
             "messages": [
@@ -28,7 +28,8 @@ def run_hedge_fund(ticker: str, start_date: str, end_date: str, portfolio: dict,
                 "portfolio": portfolio,
                 "start_date": start_date,
                 "end_date": end_date,
-                "num_of_news": num_of_news,
+                "direction": direction,
+                "event_prompt": event_prompt
             },
             "metadata": {
                 "show_reasoning": show_reasoning,
@@ -79,7 +80,7 @@ if __name__ == "__main__":
                         help='Show reasoning from each agent')
     parser.add_argument('--initial-capital', type=float, default=100000.0,
                         help='Initial cash amount (default: 100,000)')
-    parser.add_argument('--num-of-news', type=int, default=5,
+    parser.add_argument('--event_prompt', type=int, default=5,
                         help='Number of news articles to analyze for sentiment (default: 5)')
 
     args = parser.parse_args()
