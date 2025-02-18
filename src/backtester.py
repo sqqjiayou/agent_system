@@ -3,13 +3,53 @@ import numpy as np
 from datetime import datetime, timedelta
 import json
 import os
+import matplotlib
 import matplotlib.pyplot as plt
-from tools.api import get_forex_news
-from tools.api import get_market_data
-from tools.api import analyze_news_metrics_with_llm
+import time
+from tools.api import get_forex_news, get_market_data, analyze_news_metrics_with_llm
+import logging
+from main import run_hedge_fund
+os.environ['PYDEVD_UNBLOCK_THREADS_TIMEOUT'] = '10'
+
+
+# 移除根 logger 所有 StreamHandler（禁止根 logger 对控制台输出）
+root_logger = logging.getLogger()
+for handler in root_logger.handlers[:]:
+    if isinstance(handler, logging.StreamHandler):
+        root_logger.removeHandler(handler)
+
+# 禁用 api_calls 模块的 logger
+api_logger = logging.getLogger("api_calls")
+api_logger.setLevel(logging.ERROR)
+api_logger.propagate = False
+api_logger.disabled = True
+
+import sys
+import pandas_market_calendars as mcal
+import warnings
+
+from main import run_hedge_fund
+
+# 根据操作系统配置中文字体
+if sys.platform.startswith('win'):
+    matplotlib.rc('font', family='Microsoft YaHei')
+elif sys.platform.startswith('linux'):
+    matplotlib.rc('font', family='WenQuanYi Micro Hei')
+else:
+    matplotlib.rc('font', family='PingFang SC')
+
+# 允许负号显示
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+# 禁用 matplotlib 与 pandas.plotting 警告
+warnings.filterwarnings('ignore', category=UserWarning, module='matplotlib')
+warnings.filterwarnings('ignore', category=UserWarning, module='pandas.plotting')
+logging.getLogger('matplotlib').setLevel(logging.ERROR)
+logging.getLogger('PIL').setLevel(logging.ERROR)
 
 class BacktestFramework:
-    def __init__(self, start_date, end_date, ticker, event_prompt, similarity_threshold=0.65):
+    def __init__(self, agent, start_date, end_date, ticker, event_prompt, similarity_threshold=0.2):
+        self.agent = agent
         self.start_date = start_date
         self.end_date = end_date
         self.ticker = ticker
@@ -17,6 +57,63 @@ class BacktestFramework:
         self.similarity_threshold = similarity_threshold
         self.news_data = None
         self.trade_records = []
+
+        # 设置日志
+        self.setup_backtest_logging()
+        self.logger = self.setup_logging()
+
+        # 初始化 API 调用计数
+        self._api_call_count = 0
+        self._api_window_start = time.time()
+        self._last_api_call = 0
+
+        # 验证输入有效性
+        self.validate_inputs()
+
+    def setup_logging(self):
+        logger = logging.getLogger('backtester')
+        logger.setLevel(logging.WARNING)
+        if not logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+        return logger
+    
+    def validate_inputs(self):
+        try:
+            start = datetime.strptime(self.start_date, "%Y-%m-%d")
+            end = datetime.strptime(self.end_date, "%Y-%m-%d")
+            if start >= end:
+                raise ValueError("Start date must be earlier than end date")
+            if not isinstance(self.ticker, str) or len(self.ticker) == 0:
+                raise ValueError("Invalid ticker format")
+            if not (self.ticker.isalpha() or (len(self.ticker) == 6 and self.ticker.isdigit())):
+                self.backtest_logger.warning(f"Ticker {self.ticker} may be in unusual format")
+            self.backtest_logger.info("Input parameters validated")
+        except Exception as e:
+            self.backtest_logger.error(f"Input parameter validation failed: {str(e)}")
+            raise
+
+    def setup_backtest_logging(self):
+        log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'logs')
+        os.makedirs(log_dir, exist_ok=True)
+        self.backtest_logger = logging.getLogger('backtest')
+        self.backtest_logger.setLevel(logging.WARNING)
+        if self.backtest_logger.handlers:
+            self.backtest_logger.handlers.clear()
+        current_date = datetime.now().strftime('%Y%m%d')
+        backtest_period = f"{self.start_date.replace('-', '')}_{self.end_date.replace('-', '')}"
+        log_file = os.path.join(log_dir, f"backtest_{self.ticker}_{current_date}_{backtest_period}.log")
+        file_handler = logging.FileHandler(log_file, encoding='utf-8')
+        file_handler.setLevel(logging.WARNING)
+        formatter = logging.Formatter('%(message)s')
+        file_handler.setFormatter(formatter)
+        self.backtest_logger.addHandler(file_handler)
+        self.backtest_logger.info(f"Backtest Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        self.backtest_logger.info(f"Ticker: {self.ticker}")
+        self.backtest_logger.info(f"Backtest Period: {self.start_date} to {self.end_date}")
+        self.backtest_logger.info("-" * 100)
 
     def get_news_data(self):
         """
@@ -71,7 +168,7 @@ class BacktestFramework:
             print(f"Failed to analyze news with LLM: {str(e)}")
             return None
 
-    def execute_trade(self, timestamp, position_size, analysis_result, last_exit_time, news_title):
+    def execute_trade(self, timestamp, entry_price_data, intraday_df, position_size, analysis_result, last_exit_time, news_title):
         """
         Execute and record trade details including exit conditions
         
@@ -83,9 +180,9 @@ class BacktestFramework:
         """
         timestamp = pd.Timestamp(timestamp)
         # Get entry price and intraday price data
-        entry_price_data, intraday_df = self.get_price(timestamp)
-        if entry_price_data is None:
-            return None
+        # entry_price_data, intraday_df = self.get_price(timestamp)
+        # if entry_price_data is None:
+        #     return None
             
         entry_price = entry_price_data['open']
         
@@ -354,6 +451,85 @@ class BacktestFramework:
         plt.savefig(f'results/performance_{self.ticker}_{self.start_date}_{self.end_date}.png')
         plt.close()
 
+    def get_agent_decision(self, timestamp):
+        max_retries = 5
+        current_time = time.time()
+        if current_time - self._api_window_start >= 60:
+            self._api_call_count = 0
+            self._api_window_start = current_time
+        if self._api_call_count >= 8:
+            wait_time = 60 - (current_time - self._api_window_start)
+            if wait_time > 0:
+                self.backtest_logger.info(f"API limit reached, waiting {wait_time:.1f} seconds...")
+                time.sleep(wait_time)
+                self._api_call_count = 0
+                self._api_window_start = time.time()
+        for attempt in range(max_retries):
+            try:
+                if self._last_api_call:
+                    time_since_last_call = time.time() - self._last_api_call
+                    if time_since_last_call < 6:
+                        time.sleep(6 - time_since_last_call)
+                self._last_api_call = time.time()
+                self._api_call_count += 1
+                result = self.agent(
+                    ticker=self.ticker,
+                    time=str(timestamp),
+                    start_date=self.start_date,
+                    end_date=self.end_date
+                )
+                try:
+                    if isinstance(result, str):
+                        result = result.replace('```json\n', '').replace('\n```', '').strip()
+                        parsed_result = json.loads(result)
+                        formatted_result = {"decision": parsed_result, "analyst_signals": {}}
+                        if "agent_signals" in parsed_result:
+                            parsed_result["agent_signals"] = self.parse_signals(parsed_result["agent_signals"])
+                            formatted_result["analyst_signals"] = {
+                                agent_name: {
+                                    "signal": signal
+                                }
+                                for agent_name, signal in parsed_result["agent_signals"].items()
+                            }
+                        return formatted_result
+                    return result
+                except json.JSONDecodeError as e:
+                    self.backtest_logger.warning(f"JSON parsing error: {str(e)}")
+                    self.backtest_logger.warning(f"Raw result: {result}")
+                    return {"decision": {"action": "neutral", "quantity": 0}, "analyst_signals": {}}
+            except Exception as e:
+                if "AFC is enabled" in str(e):
+                    self.backtest_logger.warning("AFC limit triggered, waiting 60 seconds...")
+                    time.sleep(60)
+                    self._api_call_count = 0
+                    self._api_window_start = time.time()
+                    continue
+                self.backtest_logger.warning(f"Failed to get agent decision (attempt {attempt + 1}/{max_retries}): {str(e)}")
+                if attempt == max_retries - 1:
+                    return {"decision": {"action": "neutral", "quantity": 0}, "analyst_signals": {}}
+                time.sleep(2 ** attempt)
+
+    def parse_signals(self, signal_str):
+        # 将字符串按逗号分割
+        signals = signal_str.split(',')
+        
+        # 创建结果字典
+        result = {}
+        
+        # 处理每个信号
+        for signal in signals:
+            # 去除首尾空格
+            signal = signal.strip()
+            # 分离 agent 和信号值
+            agent, value = signal.split(':')
+            # 提取 signal (bearish/bullish)
+            signal_type = value.split('(')[0].strip()
+            
+            # 添加到结果字典
+            result[agent] = signal_type
+
+        return result
+
     def run_backtest(self):
         """
         Run backtest simulation based on news analysis and trading rules
@@ -365,9 +541,9 @@ class BacktestFramework:
         4. Record all trades including simulated ones that weren't executed
         """
         # Initialize trading parameters
-        self.stop_loss_limit = -0.003  # -0.3% stop loss
+        self.stop_loss_limit = -0.005  # -0.3% stop loss
         self.take_profit_limit = 0.005  # 0.5% take profit
-        self.time_limit = 30  # 30 minutes max holding time
+        self.time_limit = 60  # 30 minutes max holding time
         
         # Get news data
         self.news_data = self.get_news_data()
@@ -400,19 +576,26 @@ class BacktestFramework:
                         
             if abs(analysis_result['similarity_score']) <= self.similarity_threshold:
                 continue
-                    
-            # Determine position size
-            position_size = 0
-            if analysis_result['similarity_score'] > 0:
-                if analysis_result['sentiment_class'] == 1:
-                    position_size = 1
-                elif analysis_result['sentiment_class'] == 0:
-                    position_size = 0.5
-            else:
-                if analysis_result['sentiment_class'] == -1:
-                    position_size = -1
-                elif analysis_result['sentiment_class'] == 0:
-                    position_size = -0.5
+            
+            # Get entry price and intraday price data, if not a trading day/time, skip this signal
+            entry_price_data, intraday_df = self.get_price(news_row['publishedDate'])
+            if entry_price_data is None or news_row['publishedDate'].ceil('min') != entry_price_data['date'].ceil('min'):
+                continue
+
+            output = self.get_agent_decision(news_row['publishedDate'])
+            if output.get("analyst_signals"):
+                print("\nAgent Analysis Results:")
+                for agent_name, signal in output["analyst_signals"].items():
+                    print(f"\n{agent_name}: - Signal: {signal.get('signal', 'unknown')}, Confidence: {signal.get('confidence', 0)*100:.2f}%")
+                    if "analysis" in signal:
+                        print("  Analysis: " + str(signal["analysis"]))
+                    if "reason" in signal:
+                        print("  Reasoning: " + str(signal["reason"]))
+            agent_decision = output.get("decision", {"action": "neutral", "quantity": 0})
+            action, position_size = agent_decision.get("action", "neutral"), agent_decision.get("quantity", 0)
+            print(f"\nFinal Decision: {action.upper()}, Target Quantity: {position_size}")
+            if "reasoning" in agent_decision:
+                print("Decision Reasoning: " + str(agent_decision["reasoning"]))
                         
             if position_size == 0:
                 continue
@@ -422,10 +605,14 @@ class BacktestFramework:
             print(f"News Title: {news_row['title']}")
             print(f"Time: {news_row['publishedDate']}")
             print("-" * 50)
-                    
+            if action == "short":
+                position_size = -position_size
+
             # Execute trade
             result = self.execute_trade(
                 news_row['publishedDate'],
+                entry_price_data, 
+                intraday_df,
                 position_size,
                 analysis_result,
                 last_exit_time,
@@ -449,25 +636,22 @@ class BacktestFramework:
 
 if __name__ == "__main__":
     backtest = BacktestFramework(
-        start_date='2025-01-02',
-        end_date='2025-02-13',
+        agent=run_hedge_fund,
+        start_date='2025-01-01',
+        end_date='2025-02-16',
         ticker='EURUSD',
-        event_prompt = "ECB maintains hawkish stance on rates"
+        event_prompt = "Trump announces new tariffs on European goods"
     )
     backtest.run_backtest()
 
     """
     event_prompt examples for EURUSD:
     Bullish EUR:
-    "US Dollar weakens as Fed rate cut expectations increase"
-    "US economic data disappoints expectations"
-    "ECB maintains hawkish stance on rates"
-    "German/Eurozone economic data beats expectations"
+    "Trump delays implementation of EU tariffs"
+
 
     Bearish EUR:
-    "US PMI/ISM data beats expectations while Eurozone PMIs remain weak"
-    "US Core PCE/CPI data comes in hotter than expected"
-    "Strong US jobs data pressures EUR"
-    "ECB rate cut expectations increase"
+    "Trump threatens reciprocal tariffs against EU"
+
     """
     

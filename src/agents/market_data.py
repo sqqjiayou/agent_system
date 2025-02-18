@@ -1,46 +1,40 @@
 from langchain_core.messages import HumanMessage
 from tools.openrouter_config import get_chat_completion
 from agents.state import AgentState
-from tools.api import get_macro_metrics, get_price_history
+from tools.api import get_macro_metrics, get_market_data_history
 from datetime import datetime, timedelta
 import pytz
+import pandas as pd
 
 def market_data_agent(state: AgentState):
     """Responsible for gathering and preprocessing forex market data"""
+    # print('market_data_agent')
+    # print('#'*50)
     messages = state["messages"]
     data = state["data"]
 
     # Get current_date from state
-    current_date = data.get("current_date") or data["end_date"]
+    time = data.get("time")
 
-    # 对于外汇市场，获取6个月的历史数据
-    current_date_obj = datetime.strptime(current_date, '%Y-%m-%d')
-    min_start_date = (current_date_obj - timedelta(days=180)).strftime('%Y-%m-%d')
-
-    # 使用原始的start_date和min_start_date中较早的那个
-    original_start_date = data["start_date"]
-    start_date = min(original_start_date, min_start_date) if original_start_date else min_start_date
 
     # Get currency code
     currency = data["ticker"]  # 现在直接使用货币代码
 
     try:
         # 获取从start_date到current_date的所有价格数据
-        prices = get_price_history(currency, start_date, current_date)
-
+        prices = get_market_data_history(currency, time, num_min=1440)
+        symbol = currency[:3]
         # 获取当前货币的宏观数据
-        macro_metrics = get_macro_metrics(currency)
+        macro_metrics = get_macro_metrics(symbol)
 
         return {
             "messages": messages,
             "data": {
                 **data,
                 "prices": prices,
-                "start_date": start_date,
-                "end_date": current_date,
-                "current_date": current_date,
+                "time": time,
                 "macro_metrics": macro_metrics,  # 宏观经济指标数据
-                "trading_session": get_trading_session(current_date_obj)  # 当前交易时段
+                "trading_session": get_trading_session(pd.to_datetime(time))  # 当前交易时段
             }
         }
 
@@ -52,9 +46,7 @@ def market_data_agent(state: AgentState):
             "data": {
                 **data,
                 "prices": [],
-                "start_date": start_date,
-                "end_date": current_date,
-                "current_date": current_date,
+                "time": time,
                 "macro_metrics": [{  # 默认的宏观指标结构
                     "interest_rate_differential": 0.0,
                     "inflation_differential": 0.0,
@@ -73,7 +65,7 @@ def market_data_agent(state: AgentState):
                             "trade_balance": 0.0
                         }
                     },
-                    "data_timestamp": current_date,
+                    "data_timestamp": time,
                     "period": "current"
                 }],
                 "trading_session": "unknown"

@@ -5,10 +5,12 @@ import json
 ##### Fundamental Agent #####
 def fundamentals_agent(state: AgentState):
     """Analyzes forex fundamental data and generates trading signals."""
+    # print('fundamentals_agent')
+    # print('#'*50)
     show_reasoning = state["metadata"]["show_reasoning"]
     data = state["data"]
     metrics = data["macro_metrics"][0]  # 使用新的macro_metrics替代financial_metrics
-    currency = data["ticker"]  # 现在使用单个货币代码
+    currency = data["ticker"][:3]  # 现在使用单个货币代码
 
     signals = []
     reasoning = {}

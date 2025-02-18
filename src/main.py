@@ -15,7 +15,7 @@ load_dotenv()  # 加载 .env 文件中的环境变量
 
 
 ##### Run the Hedge Fund #####
-def run_hedge_fund(ticker: str, start_date: str, end_date: str, portfolio: dict, show_reasoning: bool = False, direction: str = "long", event_prompt: str = "PBOC sets stronger yuan fixing than expected"):
+def run_hedge_fund(ticker: str, time: str, start_date: str, end_date: str, show_reasoning: bool = True):
     final_state = app.invoke(
         {
             "messages": [
@@ -25,11 +25,9 @@ def run_hedge_fund(ticker: str, start_date: str, end_date: str, portfolio: dict,
             ],
             "data": {
                 "ticker": ticker,
-                "portfolio": portfolio,
+                "time": time,
                 "start_date": start_date,
                 "end_date": end_date,
-                "direction": direction,
-                "event_prompt": event_prompt
             },
             "metadata": {
                 "show_reasoning": show_reasoning,
@@ -123,11 +121,10 @@ if __name__ == "__main__":
 
     result = run_hedge_fund(
         ticker=args.ticker,
+        time=args.time,
         start_date=args.start_date,
         end_date=args.end_date,
-        portfolio=portfolio,
-        show_reasoning=args.show_reasoning,
-        num_of_news=args.num_of_news
+        show_reasoning=args.show_reasoning
     )
     print("\nFinal Result:")
     print(result)

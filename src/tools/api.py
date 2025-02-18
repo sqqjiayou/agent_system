@@ -23,17 +23,48 @@ import json
 import logging
 import time
 
-class Kimi(LLM):
-    """Custom LLM class for Moonshot API integration"""
+class DeepSeek2(LLM):
+    """Custom LLM class for DeepSeek API integration"""
     @property
     def _llm_type(self) -> str:
-        return "kimillm"
+        return "DeepSeekllm"
         
     def _call(self, prompt: str, **kwargs: Any) -> str:
         try:
             client = OpenAI(
-                api_key="sk-AZThr3NJeE57R5nsjt6hUGEex5dvjJHzEkVID016SdUmR0no",
-                base_url="https://api.moonshot.cn/v1",
+                api_key=os.getenv("DS_API_KEY"),
+                # base_url="https://api.openai.com/v1"
+                #base_url="https://api.deepseek.com",
+                base_url="https://tbnx.plus7.plus/v1"
+            )
+            
+            formatted_prompt = prompt + "\nIMPORTANT: Return only a single integer number, nothing else."
+
+            completion = client.chat.completions.create(
+                model="deepseek-chat",
+                # model="deepseek-reasoner", 
+                messages=[{"role": "user", "content": formatted_prompt}],
+                temperature=0,
+            )
+            return completion.choices[0].message.content
+        except Exception as e:
+            logging.error(f"Error in DeepSeek _call: {e}", exc_info=True)
+            raise
+
+class DeepSeek(LLM):
+    """Custom LLM class for DeepSeek API integration"""
+    @property
+    def _llm_type(self) -> str:
+        return "DeepSeekllm"
+        
+    def _call(self, prompt: str, **kwargs: Any) -> str:
+        try:
+            client = OpenAI(
+                api_key=os.getenv("DS_API_KEY"),
+                #base_url="https://api.moonshot.cn/v1",
+                # base_url="https://api.openai.com/v1"
+                base_url="https://tbnx.plus7.plus/v1"
+
             )
             # Add explicit JSON formatting instruction
             formatted_prompt = prompt + """
@@ -54,13 +85,14 @@ class Kimi(LLM):
             Do not include any explanations or comments in the JSON. The values should be numbers (except impact_length which should be a string) without any additional text."""
 
             completion = client.chat.completions.create(
-                model="moonshot-v1-32k",
+                model="deepseek-chat",
+                # model="deepseek-reasoner", 
                 messages=[{"role": "user", "content": formatted_prompt}],
                 temperature=0,
             )
             return completion.choices[0].message.content
         except Exception as e:
-            logging.error(f"Error in Kimi _call: {e}", exc_info=True)
+            logging.error(f"Error in DeepSeek _call: {e}", exc_info=True)
             raise
 
 def create_news_analysis_schema(currency: str) -> List[ResponseSchema]:
@@ -142,7 +174,7 @@ def analyze_news_metrics_with_llm(symbol: str, start_date: str, end_date: str, n
             return matched_row[required_cols].iloc[0]
 
     # Initialize LLM
-    llm = Kimi()
+    llm = DeepSeek()
     
     # Create parser and prompt
     output_parser = StructuredOutputParser.from_response_schemas(create_news_analysis_schema(symbol))
@@ -430,7 +462,123 @@ def test_forex_news():
     if news_df is not None:
         print(news_df)
 
-def get_market_data(symbol: str, timestamp: str) -> pd.Series:
+import pandas as pd
+from typing import Optional
+import os
+import glob
+
+import pandas as pd
+from typing import Optional, Tuple
+import os
+import glob
+
+def get_forex_news_history(symbol: str, start_date: str, end_date: str, time: str, num_hour: int) -> Tuple[Optional[str], Optional[pd.DataFrame]]:
+    """
+    Get historical forex news data within specified time range.
+    
+    Args:
+        symbol: Currency pair symbol (e.g., 'EURUSD')
+        start_date: Start date of the data file
+        end_date: End date of the data file
+        time: Target time point
+        num_hour: Number of hours to look back
+    
+    Returns:
+        Tuple containing:
+        - str or None: Path of the suitable file
+        - DataFrame or None: DataFrame containing news within the time range
+    """
+    # Convert input dates to datetime for comparison
+    try:
+        target_start = pd.to_datetime(start_date)
+        target_end = pd.to_datetime(end_date)
+    except Exception as e:
+        print(f"Error: Invalid date format for input dates: {e}")
+        return None, None
+
+    # Find all files starting with the symbol in news_data directory
+    file_pattern = os.path.join('news_data', f"{symbol}_*.csv")
+    available_files = glob.glob(file_pattern)
+    
+    if not available_files:
+        print(f"Error: No files found for symbol {symbol}")
+        return None, None
+    
+    # Find suitable file by checking date range in filename
+    suitable_file = None
+    for file_path in available_files:
+        # Extract dates from filename
+        try:
+            filename = os.path.basename(file_path)
+            file_dates = filename.replace(f"{symbol}_", "").replace(".csv", "").split("_")
+            file_start = pd.to_datetime(file_dates[0])
+            file_end = pd.to_datetime(file_dates[1])
+            
+            # Check if target date range is within file's date range
+            if file_start <= target_start and file_end >= target_end:
+                suitable_file = file_path
+                break
+        except Exception as e:
+            print(f"Warning: Skipping file {filename} due to invalid format: {e}")
+            continue
+    
+    if suitable_file is None:
+        print(f"Error: No suitable file found containing date range from {start_date} to {end_date}")
+        return None, None
+    
+    try:
+        # Read CSV file
+        df = pd.read_csv(suitable_file)
+        
+        if df.empty:
+            print(f"Error: No data in file: {suitable_file}")
+            return suitable_file, None
+            
+        # Convert publishedDate column to datetime
+        try:
+            df['publishedDate'] = pd.to_datetime(df['publishedDate'])
+        except Exception as e:
+            print(f"Error: Failed to convert publishedDate to datetime format: {e}")
+            return suitable_file, None
+        
+        # Convert input time to datetime
+        try:
+            target_time = pd.to_datetime(time)
+        except Exception as e:
+            print(f"Error: Invalid time format for input time {time}: {e}")
+            return suitable_file, None
+            
+        # Calculate start time
+        start_time = target_time - pd.Timedelta(hours=num_hour)
+        
+        # Get the earliest time in the dataset
+        earliest_time = df['publishedDate'].min()
+        
+        # If start_time is earlier than the earliest available data,
+        # use the earliest available time
+        if start_time < earliest_time:
+            print(f"Warning: Requested start time ({start_time}) is earlier than available data. Using earliest available time: {earliest_time}")
+            start_time = earliest_time
+        
+        # Filter data within time range
+        mask = (df['publishedDate'] >= start_time) & (df['publishedDate'] <= target_time)
+        filtered_df = df[mask]
+        
+        if filtered_df.empty:
+            print(f"Warning: No data found between {start_time} and {target_time}")
+            return suitable_file, None
+        
+        # Sort by time
+        filtered_df = filtered_df.sort_values('publishedDate')
+        
+        print(f"Successfully retrieved {len(filtered_df)} news entries from file: {os.path.basename(suitable_file)}")
+        return suitable_file, filtered_df
+    
+    except Exception as e:
+        print(f"Error: Unexpected error while processing file: {e}")
+        return suitable_file, None
+    
+def get_market_data(symbol: str, timestamp: str) -> Tuple[pd.Series, pd.DataFrame]:
     """
     Get market data for the nearest minute greater than or equal to the specified timestamp
     
@@ -519,6 +667,95 @@ def test_market_data():
             print(f"Market data:\n{result}")
 
 
+def get_market_data_history(symbol: str, timestamp: str, num_min: int) -> pd.DataFrame:
+    """
+    Get historical market data for specified number of minutes before the timestamp
+    
+    Args:
+        symbol: Trading pair symbol (e.g. "EURUSD")
+        timestamp: Timestamp string with seconds (format: "YYYY-MM-DD HH:MM:SS")
+        num_min: Number of minutes of historical data to retrieve
+    
+    Returns:
+        pandas DataFrame containing historical market data, or None if no data found
+    """
+    # Create data directory if it doesn't exist
+    data_dir = Path('data')
+    data_dir.mkdir(exist_ok=True)
+    
+    # Convert input time to datetime and round down to minute
+    end_dt = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").replace(second=0, microsecond=0)
+    start_dt = end_dt - timedelta(minutes=num_min)
+    
+    # Construct filename
+    file_name = f"{symbol}_{start_dt.strftime('%Y-%m-%d')}_{end_dt.strftime('%Y-%m-%d')}.csv"
+    file_path = data_dir / file_name
+    
+    try:
+        # Try to read from local file first
+        if file_path.exists():
+            df = pd.read_csv(file_path)
+            df['date'] = pd.to_datetime(df['date'])
+            print(f"Found local data for {symbol} from {start_dt} to {end_dt}")
+            
+            # Verify if local data covers the required range
+            if df['date'].min() <= start_dt and df['date'].max() >= end_dt:
+                mask = df['date'].between(start_dt, end_dt)
+                return df[mask].sort_values(by='date', ascending=True)
+        
+        # If local file doesn't exist or doesn't cover the range, fetch from API
+        all_data = []
+        current_dt = end_dt
+        
+        while current_dt >= start_dt:
+            to_date = current_dt.strftime("%Y-%m-%d")
+            from_date = (current_dt - timedelta(days=1)).strftime("%Y-%m-%d")
+            
+            base_url = "https://financialmodelingprep.com/api/v3/historical-chart/1min"
+            params = {
+                "apikey": os.getenv("FMP_API_KEY"),
+                "from": from_date,
+                "to": to_date
+            }
+            url = f"{base_url}/{symbol}"
+            
+            response = requests.get(url=url, params=params)
+            if response.status_code != 200:
+                print(f"API request failed for period {from_date} to {to_date}: Status {response.status_code}")
+                current_dt = current_dt - timedelta(days=2)
+                time.sleep(1)
+                continue
+                
+            data = response.json()
+            if data:
+                all_data.extend(data)
+                
+            print(f"Downloaded data for {from_date} to {to_date}")
+            current_dt = current_dt - timedelta(days=2)
+            time.sleep(1)  # Rate limiting pause
+            
+        if not all_data:
+            print(f"No market data found for {symbol} between {start_dt} and {end_dt}")
+            return None
+            
+        # Convert to DataFrame and process
+        df = pd.DataFrame(all_data)
+        df['date'] = pd.to_datetime(df['date'])
+        df.sort_values(by='date', ascending=True, inplace=True)
+
+        # Save to local storage
+        df.to_csv(file_path, index=False)
+
+        # Filter for required time range
+        mask = df['date'].between(start_dt, end_dt)
+        result_df = df[mask].copy()
+        
+        return result_df
+        
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return None
+    
 
 # 定义直接报价的货币列表（USD在后）
 DIRECT_CURRENCIES = ['EUR', 'GBP', 'AUD', 'NZD']
@@ -607,98 +844,160 @@ def get_currency_macro_data(currency: str, is_previous: bool = False) -> Dict[st
     """获取单个货币的宏观经济数据，包括当前和上期数据"""
     current_macro_data = {
         "USD": {
-            "interest_rate": 5.50,  # Fed funds rate
-            "inflation_rate": 3.2,
-            "gdp_growth": 2.1,
-            "monetary_policy": "tightening",
-            "unemployment": 3.8,
-            "trade_balance": -63.3
+            "interest_rate": 4.5,  # Fed Interest Rate Decision (30/1)
+            "inflation_rate": 3.2, # Core Inflation Rate YoY DEC
+            "gdp_growth": 3.1, # GDP Growth Rate QoQ Final Q3
+            "unemployment": 4.1, # Unemployment Rate DEC
+            "trade_balance": -98.4 # Balance of Trade DEC (in billion)
         },
         "EUR": {
-            "interest_rate": 4.50,  # ECB rate
-            "inflation_rate": 2.9,
-            "gdp_growth": 0.1,
-            "monetary_policy": "tightening",
-            "unemployment": 6.5,
-            "trade_balance": 23.0
+            "interest_rate": 2.9,  # ECB Interest Rate Decision (30/1)
+            "inflation_rate": 2.4, #Inflation Rate YoY Flash DEC
+            "gdp_growth": 0.9, # GDP Growth Rate YoY 2nd Est Q3
+            "unemployment": 6.3, # Unemployment Rate DEC
+            "trade_balance": 16.4 # Balance of Trade Nov (in billion) 
         },
         "JPY": {
-            "interest_rate": -0.1,  # BOJ rate
-            "inflation_rate": 3.3,
-            "gdp_growth": 1.2,
-            "monetary_policy": "easing",
-            "unemployment": 2.6,
-            "trade_balance": -34.2
+            "interest_rate": 0.5,  # BoJ Interest Rate Decision (24/1)
+            "inflation_rate": 3.6, # Inflation Rate YoY DEC
+            "gdp_growth": 1.2,  # GDP Growth Annualized Final Q3
+            "unemployment": 2.4, # Unemployment Rate DEC
+            "trade_balance": 130.9 # Balance of Trade DEC (in billion)
         },
         "GBP": {
-            "interest_rate": 5.25,  # BOE rate
-            "inflation_rate": 4.0,
-            "gdp_growth": 0.3,
-            "monetary_policy": "tightening",
-            "unemployment": 4.2,
-            "trade_balance": -15.8
+            "interest_rate": 4.5,  # BoE Interest Rate Decision (6/2)
+            "inflation_rate": 2.5, # Inflation Rate YoY DEC
+            "gdp_growth": 0.9, # GDP Growth Rate YoY Final Q3
+            "unemployment": 4.4, # Unemployment Rate Nov 
+            "trade_balance": -2.82 # Balance of Trade DEC (in billion)
         },
         "CNH": {  # 离岸人民币
-            "interest_rate": 3.45,
-            "inflation_rate": 0.1,
-            "gdp_growth": 4.9,
-            "monetary_policy": "neutral",
-            "unemployment": 5.3,
-            "trade_balance": 77.7
+            "interest_rate": 3.1, # Loan Prime Rate 1Y (20/1)
+            "inflation_rate": 0.1, #Inflation Rate YoY DEC
+            "gdp_growth": 5.4, # GDP Growth Rate YoY Q4
+            "unemployment": 5.1, # Unemployment Rate DEC
+            "trade_balance": 104.84 # Balance of Trade DEC (in billion)
         },
         "CNY": {  # 在岸人民币
-            "interest_rate": 3.45,
-            "inflation_rate": 0.1,
-            "gdp_growth": 4.9,
-            "monetary_policy": "neutral",
-            "unemployment": 5.3,
-            "trade_balance": 77.7
+            "interest_rate": 3.1, # Loan Prime Rate 1Y (20/1)
+            "inflation_rate": 0.1, #Inflation Rate YoY DEC
+            "gdp_growth": 5.4, # GDP Growth Rate YoY Q4
+            "unemployment": 5.1, # Unemployment Rate DEC
+            "trade_balance": 104.84 # Balance of Trade DEC (in billion)
         },
         "CHF": {
-            "interest_rate": 1.75,  # SNB rate
-            "inflation_rate": 1.7,
-            "gdp_growth": 0.8,
-            "monetary_policy": "neutral",
-            "unemployment": 2.0,
-            "trade_balance": 8.5
+            "interest_rate": 0.5,  #SNB Interest Rate Decision (12/12/2024)
+            "inflation_rate": 0.7, # Inflation rate YoY DEC
+            "gdp_growth": 2, # GDP Growth Rate YoY Q3
+            "unemployment": 2.8, # Unemployment Rate DEC
+            "trade_balance": 4.3 # Balance of Trade DEC (in billion)
         },
         "CAD": {
-            "interest_rate": 5.00,  # BOC rate
-            "inflation_rate": 3.4,
-            "gdp_growth": 1.1,
-            "monetary_policy": "tightening",
-            "unemployment": 5.8,
-            "trade_balance": -2.8
+            "interest_rate": 3,  # BoC Interest Rate Decision (29/1)
+            "inflation_rate": 1.8, # Inflation Rate YoY DEC
+            "gdp_growth": 1, # GDP Growth Rate Annualized Q3
+            "unemployment": 6.7, # Unemployment Rate DEC
+            "trade_balance": 0.71 # Balance of Trade DEC (in billion)
         },
         "AUD": {
-            "interest_rate": 4.35,  # RBA rate
-            "inflation_rate": 4.1,
-            "gdp_growth": 2.1,
-            "monetary_policy": "tightening",
-            "unemployment": 3.9,
-            "trade_balance": 7.5
+            "interest_rate": 4.35,  # RBA Interest Rate Decision (10/12/2024)
+            "inflation_rate": 2.4, # Inflation Rate YoY Q4
+            "gdp_growth": 0.8, # GDP Growth Rate YoY Q3
+            "unemployment": 4, # Unemployment Rate DEC
+            "trade_balance": 5.085 # Balance of Trade DEC (in billion)
         },
         "NZD": {
-            "interest_rate": 5.50,  # RBNZ rate
-            "inflation_rate": 4.7,
-            "gdp_growth": 1.6,
-            "monetary_policy": "tightening",
-            "unemployment": 3.9,
-            "trade_balance": -0.9
+            "interest_rate": 4.25,  # RBNZ Interest Rate Decision (27/11)
+            "inflation_rate": 2.2,  # Inflation Rate YoY Q4
+            "gdp_growth": -1.5, # GDP Growth Rate YoY Q3
+            "unemployment": 5.1, # Unemployment Rate Q4
+            "trade_balance": 0.219 # Balance of Trade DEC (in billion)
         }
     }
     
-    # 模拟上期数据（添加小幅度变化）
+    previous_macro_data = {
+        "USD": {
+            "interest_rate": 4.5,  # Fed Interest Rate Decision
+            "inflation_rate": 3.3, # Core Inflation Rate YoY Nov
+            "gdp_growth": 3, # GDP Growth Rate QoQ Final Q2
+            "unemployment": 4.2, # Unemployment Rate Nov
+            "trade_balance": -78.9 # Balance of Trade Nov (in billion)
+        },
+        "EUR": {
+            "interest_rate": 3.15,  # ECB Interest Rate Decision 
+            "inflation_rate": 2.2, #Inflation Rate YoY Flash Nov
+            "gdp_growth": 0.6, # GDP Growth Rate YoY 2nd Est Q2
+            "unemployment": 6.2, # Unemployment Rate Nov
+            "trade_balance": 8.6 # Balance of Trade Oct (in billion) 
+        },
+        "JPY": {
+            "interest_rate": 0.25,  # BoJ Interest Rate Decision
+            "inflation_rate": 2.9, # Inflation Rate YoY Nov
+            "gdp_growth": 2.2, #  GDP Growth Annualized Final Q2
+            "unemployment": 2.5, # Unemployment Rate DEC
+            "trade_balance": -110.3 # # Balance of Trade Nov (in billion)
+        },
+        "GBP": {
+            "interest_rate": 4.75,  # BoE Interest Rate Decision
+            "inflation_rate": 2.6,  # Inflation Rate YoY Nov
+            "gdp_growth": 0.7, # GDP Growth Rate YoY Final Q2
+            "unemployment": 4.3, # unemployment Rate Oct
+            "trade_balance": -4.35 # Balance of Trade Nov (in billion)
+        },
+        "CNH": {  # 离岸人民币
+            "interest_rate": 3.1, # Loan Prime Rate 1Y 
+            "inflation_rate": 0.2,  #Inflation Rate YoY Nov
+            "gdp_growth": 4.6,
+            "unemployment": 5, # Unemployment Rate Nov
+            "trade_balance": 97.44 # Balance of Trade Nov (in billion)
+        },
+        "CNY": {  # 在岸人民币
+            "interest_rate": 3.1, # Loan Prime Rate 1Y 
+            "inflation_rate": 0.2, #Inflation Rate YoY Nov
+            "gdp_growth": 4.6,
+            "unemployment": 5, # Unemployment Rate Nov
+            "trade_balance": 97.44 # Balance of Trade Nov (in billion)
+        },
+        "CHF": {
+            "interest_rate": 1,  #SNB Interest Rate Decision
+            "inflation_rate": 0.7, # Inflation rate YoY Nov
+            "gdp_growth": 1.5, # GDP Growth Rate YoY Q2
+            "unemployment": 2.6, # Unemployment Rate Nov
+            "trade_balance": 4.6 # Balance of Trade Nov (in billion)
+        },
+        "CAD": {
+            "interest_rate": 3.25,  # BoC Interest Rate Decision
+            "inflation_rate": 1.9,  # Inflation Rate YoY Nov
+            "gdp_growth": 2.2,  # GDP Growth Rate Annualized Q2
+            "unemployment": 6.8, # Unemployment Rate Nov
+            "trade_balance": -0.99 # Balance of Trade Nov (in billion)
+        },
+        "AUD": {
+            "interest_rate": 4.35,  # RBA Interest Rate Decision
+            "inflation_rate": 2.8,  # Inflation Rate YoY Q4
+            "gdp_growth": 1, # GDP Growth Rate YoY Q2
+            "unemployment": 3.9, #Unemployment Rate Nov
+            "trade_balance": 6.792 # Balance of Trade Nov (in billion)
+        },
+        "NZD": {
+            "interest_rate": 4.7,  # RBNZ Interest Rate Decision
+            "inflation_rate": 2.2, # Inflation Rate YoY Q3
+            "gdp_growth": -1.1, # GDP Growth Rate YoY Q2
+            "unemployment": 4.8, #  Unemployment Rate Q3
+            "trade_balance": -0.435 # # Balance of Trade Nov (in billion)
+        }
+    }
+
+    # 上期数据
     if is_previous:
-        previous_data = current_macro_data.get(currency, {}).copy()
-        if previous_data:
-            # 使用固定的随机种子确保结果可重现
-            np.random.seed(42)
-            for key in ["interest_rate", "inflation_rate", "gdp_growth", "unemployment", "trade_balance"]:
-                if key in previous_data:
-                    # 添加较小的随机变化（±5%）
-                    previous_data[key] = previous_data[key] * (1 + np.random.uniform(-0.05, 0.05))
-            return previous_data
+        return previous_macro_data.get(currency, {
+        "interest_rate": 0.0,
+        "inflation_rate": 0.0,
+        "gdp_growth": 0.0,
+        "monetary_policy": "unknown",
+        "unemployment": 0.0,
+        "trade_balance": 0.0
+    })
     
     return current_macro_data.get(currency, {
         "interest_rate": 0.0,

@@ -4,14 +4,15 @@ import json
 
 def valuation_agent(state: AgentState):
     """Performs forex valuation analysis using multiple methodologies."""
-
+    # print('valuation_agent')
+    # print('#'*50)
     try:
         show_reasoning = state["metadata"]["show_reasoning"]
         data = state["data"]
         currency = data["ticker"]
         
         # 获取当前汇率
-        current_rate = data["prices"][-1]["close"] if data["prices"] else 0
+        current_rate = data["prices"].iloc[-1]["close"]
         
         # 获取宏观指标
         metrics = data.get("macro_metrics", [])

@@ -1,0 +1,25 @@
+timestamp,ticker,action,entry_price,exit_time,exit_price,exit_reason,return,similarity_score,sentiment_class,actual_execution,confidence,importance,news_title
+2025-02-03 00:33:50,EURUSD,-0.3,1.02384,2025-02-03 10:23:00,1.02913,stop_loss,-0.0015500468823253682,0.9,-1.0,True,0.95,0.9,"EUR/USD slumps to 1.0200 neighborhood, multi-week low on Trump's trade tariffs"
+2025-02-03 04:19:03,EURUSD,-0.3,1.0247,2025-02-03 10:24:00,1.0313,stop_loss,-0.0019322728603494176,0.8,-1.0,False,0.9,0.8,"Greenback Surges, Dragging EUR/USD Lower at Market Open"
+2025-02-03 08:12:29,EURUSD,0.4,1.02718,2025-02-03 10:42:00,1.03291,take_profit,0.002231351856539268,0.8,-1.0,False,0.8,0.7,US Dollar Forecast: Will DXY Break 110? Tariffs and PMI Data Set the Tone – GBP/USD and EUR/USD Outlook
+2025-02-03 08:35:00,EURUSD,-0.6,1.02687,2025-02-03 10:36:00,1.03203,stop_loss,-0.0030149872914780177,0.9,-1.0,False,0.8,0.8,"EURUSD, Gold Forecast: Markets Spiral on Trade War Risks"
+2025-02-03 14:01:47,EURUSD,0.6,1.02814,2025-02-03 16:38:00,1.0334,take_profit,0.003069620868753307,0.8,-1.0,True,0.8,0.7,"EUR/USD, USD/JPY and AUD/USD Forecast – US Dollar Surges After Tariff Announcement"
+2025-02-03 16:13:00,EURUSD,-0.4,1.02926,2025-02-03 16:41:00,1.03441,stop_loss,-0.002001437926277126,0.9,-1.0,False,0.8,0.7,Euro Technical Analysis: EUR/USD Spill as Threat of Trump Tariffs Hits Euro
+2025-02-04 18:09:39,EURUSD,-0.6,1.03761,2025-02-04 19:10:00,1.03707,time_limit,0.00031225604996095927,0.8,-1.0,True,0.8,0.7,EUR/USD Elliott Wave Analysis: Gap Down Fully Retraced
+2025-02-04 18:29:00,EURUSD,-0.4,1.03777,2025-02-04 19:29:00,1.03749,time_limit,0.00010792372105574761,0.8,-1.0,False,0.8,0.7,"EUR/USD, USD/JPY, U.S. Dollar Price Action Setups"
+2025-02-05 12:30:00,EURUSD,-0.4,1.04127,2025-02-05 13:30:00,1.04184,time_limit,-0.00021896338125565186,0.7,-1.0,True,0.7,0.8,EUR/USD forecast: Key risk remains tariffs as focus momentarily shifts to data
+2025-02-10 00:58:16,EURUSD,-0.4,1.03146,2025-02-10 01:59:00,1.03185,time_limit,-0.00015124192891625092,0.8,-1.0,True,0.8,0.7,EUR/USD remains subdued around 1.0300 due to fresh Trump tariff threats
+2025-02-10 13:25:23,EURUSD,-0.7,1.031,2025-02-10 14:26:00,1.03059,time_limit,0.0002783705140640301,0.9,-1.0,True,0.8,0.8,EUR/USD trading strategy: how Trump's tariffs changed everything | Trade of the Week February 2025
+2025-02-10 16:54:25,EURUSD,-0.4,1.03059,2025-02-10 17:55:00,1.03024,time_limit,0.00013584451624791644,0.8,-1.0,True,0.8,0.7,"U.S. Dollar Moves Higher At The Start Of The Week: Analysis For EUR/USD, GBP/USD, USD/CAD, USD/JPY"
+2025-02-10 23:43:46,EURUSD,0.6,1.03026,2025-02-10 23:59:00,1.0304,day_end,8.153281695884281e-05,0.8,-1.0,True,0.7,0.6,EUR/USD slips into a third straight loss as tariff concerns weigh
+2025-02-12 04:51:39,EURUSD,-0.4,1.03695,2025-02-12 08:40:00,1.03171,take_profit,0.002021312503013697,0.8,-1.0,True,0.8,0.7,"EUR/USD remains above 1.0350, downside seems possible due to reciprocal tariff threats"
+2025-02-13 16:43:17,EURUSD,0.4,1.04629,2025-02-13 17:44:00,1.04664,time_limit,0.00013380611493948045,0.7,1.0,True,0.8,0.7,"U.S. Dollar Retreats As Traders Focus On Tariff Plans: Analysis For EUR/USD, GBP/USD, USD/CAD, USD/JPY"
+2025-02-14 09:48:29,EURUSD,0.6,1.05109,2025-02-14 10:49:00,1.05084,time_limit,-0.00014270899732663243,0.8,1.0,True,0.8,0.7,"EUR/USD: Buoyed by peace dividend, tariff delay – OCBC"
+
+Metric,Value
+Total Trades,11
+Win Rate,63.64%
+Profit/Loss Ratio,1.67
+Sharpe Ratio,4.71
+Maximum Drawdown,-0.04%
+Final Return,0.40%
