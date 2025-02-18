@@ -48,7 +48,7 @@ logging.getLogger('matplotlib').setLevel(logging.ERROR)
 logging.getLogger('PIL').setLevel(logging.ERROR)
 
 class BacktestFramework:
-    def __init__(self, agent, start_date, end_date, ticker, event_prompt, similarity_threshold=0.2):
+    def __init__(self, agent, start_date, end_date, ticker, event_prompt, similarity_threshold=0.4):
         self.agent = agent
         self.start_date = start_date
         self.end_date = end_date
@@ -542,8 +542,8 @@ class BacktestFramework:
         """
         # Initialize trading parameters
         self.stop_loss_limit = -0.005  # -0.3% stop loss
-        self.take_profit_limit = 0.005  # 0.5% take profit
-        self.time_limit = 60  # 30 minutes max holding time
+        self.take_profit_limit = 0.01  # 0.5% take profit
+        self.time_limit = 1440  # 30 minutes max holding time
         
         # Get news data
         self.news_data = self.get_news_data()
@@ -574,7 +574,7 @@ class BacktestFramework:
                 if analysis_result is None:
                     continue
                         
-            if abs(analysis_result['similarity_score']) <= self.similarity_threshold:
+            if abs(float(analysis_result['similarity_score'])) <= self.similarity_threshold:
                 continue
             
             # Get entry price and intraday price data, if not a trading day/time, skip this signal
@@ -626,7 +626,26 @@ class BacktestFramework:
                 continue
             else:
                 last_exit_time = result
-        
+        # Read both CSVs
+        df1 = pd.read_csv(f"results/Agent_{self.ticker}_{self.start_date}_{self.end_date}.csv")
+        df2 = pd.read_csv(f"results/backtest_records_{self.ticker}_{self.start_date}_{self.end_date}.csv")
+        # Convert both columns to datetime
+        df1['publishedDate'] = pd.to_datetime(df1['publishedDate'])
+        df2['timestamp'] = pd.to_datetime(df2['timestamp'])
+        # Get columns after 'uniqueness' from df1
+        agent_cols = df1.columns[df1.columns.get_loc('uniqueness')+1:]
+
+        # Add these columns to df2 
+        for col in agent_cols:
+            df2[col] = ""
+
+        # Create a mapping dictionary for each column
+        for col in agent_cols:
+            value_map = dict(zip(df1['publishedDate'], df1[col]))
+            df2[col] = df2['timestamp'].map(value_map).fillna('')
+
+        # Save updated df2
+        df2.to_csv(f"results/backtest_records_{self.ticker}_{self.start_date}_{self.end_date}_agent_reasons.csv", index=False)
         # Calculate and display performance metrics
         self.calculate_performance()
         self.plot_performance()
@@ -637,7 +656,7 @@ class BacktestFramework:
 if __name__ == "__main__":
     backtest = BacktestFramework(
         agent=run_hedge_fund,
-        start_date='2025-01-01',
+        start_date='2025-02-01',
         end_date='2025-02-16',
         ticker='EURUSD',
         event_prompt = "Trump announces new tariffs on European goods"

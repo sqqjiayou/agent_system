@@ -11,6 +11,11 @@ def portfolio_management_agent(state: AgentState):
     # print('#'*50)
     show_reasoning = state["metadata"]["show_reasoning"]
     currency = state["data"]["ticker"][:3]
+    data = state["data"]
+    symbol = data["ticker"]
+    time = data["time"]
+    start_date = data["start_date"]
+    end_date = data["end_date"]
     
     # Get all agent messages
     messages = {
@@ -138,6 +143,6 @@ def portfolio_management_agent(state: AgentState):
     )
 
     if show_reasoning:
-        show_agent_reasoning(message.content, "Forex Portfolio Management Agent")
+        show_agent_reasoning(message.content, "Forex Portfolio Management Agent", 'Portfolio', time, symbol, start_date, end_date)
 
     return {"messages": state["messages"] + [message]}

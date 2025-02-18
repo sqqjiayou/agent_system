@@ -21,6 +21,10 @@ def technical_analyst_agent(state: AgentState):
     # print('#'*50)
     show_reasoning = state["metadata"]["show_reasoning"]
     data = state["data"]
+    symbol = data["ticker"]
+    time = data["time"]
+    start_date = data["start_date"]
+    end_date = data["end_date"]
     prices_df = data["prices"]
     
     # Calculate short-term and medium-term EMAs
@@ -78,7 +82,7 @@ def technical_analyst_agent(state: AgentState):
     )
     
     if show_reasoning:
-        show_agent_reasoning(analysis_report, "Technical Analyst")
+        show_agent_reasoning(analysis_report, "Technical Analyst", 'Technical', time, symbol, start_date, end_date)
         
     return {
         "messages": [message],

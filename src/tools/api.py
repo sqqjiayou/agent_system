@@ -22,6 +22,7 @@ import os
 import json
 import logging
 import time
+import csv
 
 class DeepSeek2(LLM):
     """Custom LLM class for DeepSeek API integration"""
@@ -778,10 +779,7 @@ def get_macro_metrics(currency: str) -> List[Dict[str, Any]]:
             "interest_rate_differential": multiplier * (current_data["interest_rate"] - usd_data["interest_rate"]),
             "inflation_differential": multiplier * (current_data["inflation_rate"] - usd_data["inflation_rate"]),
             "gdp_growth_differential": multiplier * (current_data["gdp_growth"] - usd_data["gdp_growth"]),
-            "monetary_policy_stance": {
-                "currency": current_data["monetary_policy"],
-                "usd": usd_data["monetary_policy"]
-            },
+
             "economic_indicators": {
                 "currency": {
                     "unemployment": float(current_data["unemployment"]),
@@ -801,10 +799,6 @@ def get_macro_metrics(currency: str) -> List[Dict[str, Any]]:
             "interest_rate_differential": multiplier * (prev_data["interest_rate"] - usd_prev_data["interest_rate"]),
             "inflation_differential": multiplier * (prev_data["inflation_rate"] - usd_prev_data["inflation_rate"]),
             "gdp_growth_differential": multiplier * (prev_data["gdp_growth"] - usd_prev_data["gdp_growth"]),
-            "monetary_policy_stance": {
-                "currency": prev_data["monetary_policy"],
-                "usd": usd_prev_data["monetary_policy"]
-            },
             "economic_indicators": {
                 "currency": {
                     "unemployment": float(prev_data["unemployment"]),
@@ -831,7 +825,6 @@ def get_default_macro_metrics(period: str) -> Dict[str, Any]:
         "interest_rate_differential": 0.0,
         "inflation_differential": 0.0,
         "gdp_growth_differential": 0.0,
-        "monetary_policy_stance": {"currency": "unknown", "usd": "unknown"},
         "economic_indicators": {
             "currency": {"unemployment": 0.0, "trade_balance": 0.0},
             "usd": {"unemployment": 0.0, "trade_balance": 0.0}
@@ -994,7 +987,6 @@ def get_currency_macro_data(currency: str, is_previous: bool = False) -> Dict[st
         "interest_rate": 0.0,
         "inflation_rate": 0.0,
         "gdp_growth": 0.0,
-        "monetary_policy": "unknown",
         "unemployment": 0.0,
         "trade_balance": 0.0
     })
@@ -1003,7 +995,6 @@ def get_currency_macro_data(currency: str, is_previous: bool = False) -> Dict[st
         "interest_rate": 0.0,
         "inflation_rate": 0.0,
         "gdp_growth": 0.0,
-        "monetary_policy": "unknown",
         "unemployment": 0.0,
         "trade_balance": 0.0
     })

@@ -11,6 +11,10 @@ def risk_management_agent(state: AgentState):
     # print('#'*50)
     show_agent_reasoning_flag = state["metadata"].get("show_agent_reasoning", state["metadata"].get("show_reasoning"))
     data = state["data"]
+    symbol = data["ticker"]
+    time = data["time"]
+    start_date = data["start_date"]
+    end_date = data["end_date"]
     prices_df = data["prices"]
     
     # Get messages from other agents
@@ -142,7 +146,7 @@ def risk_management_agent(state: AgentState):
     )
 
     if show_agent_reasoning_flag:
-        show_agent_reasoning(message_content, "Forex Risk Management Agent")
+        show_agent_reasoning(message_content, "Forex Risk Management Agent", 'Risk', time, symbol, start_date, end_date)
 
     return {
         "messages": state["messages"] + [message],

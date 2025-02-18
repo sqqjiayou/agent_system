@@ -51,10 +51,6 @@ def market_data_agent(state: AgentState):
                     "interest_rate_differential": 0.0,
                     "inflation_differential": 0.0,
                     "gdp_growth_differential": 0.0,
-                    "monetary_policy_stance": {
-                        "currency": "unknown",
-                        "usd": "unknown"
-                    },
                     "economic_indicators": {
                         "currency": {
                             "unemployment": 0.0,

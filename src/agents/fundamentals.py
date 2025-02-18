@@ -9,6 +9,10 @@ def fundamentals_agent(state: AgentState):
     # print('#'*50)
     show_reasoning = state["metadata"]["show_reasoning"]
     data = state["data"]
+    symbol = data["ticker"]
+    time = data["time"]
+    start_date = data["start_date"]
+    end_date = data["end_date"]
     metrics = data["macro_metrics"][0]  # 使用新的macro_metrics替代financial_metrics
     currency = data["ticker"][:3]  # 现在使用单个货币代码
 
@@ -17,23 +21,16 @@ def fundamentals_agent(state: AgentState):
     
     # 1. Interest Rate Analysis
     interest_rate_diff = metrics.get("interest_rate_differential")
-    currency_usd_policy = metrics.get("monetary_policy_stance", {})
     
     rate_score = 0
     if interest_rate_diff > 0:  # 目标货币利率更高
-        rate_score += 1
-    if currency_usd_policy.get("currency") == "tightening":
-        rate_score += 1
-    if currency_usd_policy.get("usd") == "easing":
         rate_score += 1
         
     signals.append('bullish' if rate_score >= 2 else 'bearish' if rate_score == 0 else 'neutral')
     reasoning["interest_rate_signal"] = {
         "signal": signals[0],
         "details": (
-            f"Interest Rate Differential: {interest_rate_diff:.2f}%, " +
-            f"Currency Policy: {currency_usd_policy.get('currency', 'unknown')}, " +
-            f"USD Policy: {currency_usd_policy.get('usd', 'unknown')}"
+            f"Interest Rate Differential: {interest_rate_diff:.2f}%, "
         )
     }
     
@@ -67,9 +64,9 @@ def fundamentals_agent(state: AgentState):
     inflation_score = 0
     if abs(inflation_diff) < 1:  # 通胀差异较小
         inflation_score += 1
-    if inflation_diff > 0 and currency_usd_policy.get("currency") == "tightening":
+    if inflation_diff > 0 and interest_rate_diff > 0:
         inflation_score += 1
-    if inflation_diff < 0 and currency_usd_policy.get("usd") == "tightening":
+    if inflation_diff < 0 and interest_rate_diff < 0:
         inflation_score += 1
         
     signals.append('bullish' if inflation_score >= 2 else 'bearish' if inflation_score == 0 else 'neutral')
@@ -127,7 +124,7 @@ def fundamentals_agent(state: AgentState):
     
     # Print the reasoning if the flag is set
     if show_reasoning:
-        show_agent_reasoning(message_content, "Forex Fundamental Analysis Agent")
+        show_agent_reasoning(message_content, "Forex Fundamental Analysis Agent", 'Macro', time, symbol, start_date, end_date)
     
     return {
         "messages": [message],

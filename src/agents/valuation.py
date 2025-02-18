@@ -9,7 +9,10 @@ def valuation_agent(state: AgentState):
     try:
         show_reasoning = state["metadata"]["show_reasoning"]
         data = state["data"]
-        currency = data["ticker"]
+        symbol = data["ticker"]
+        time = data["time"]
+        start_date = data["start_date"]
+        end_date = data["end_date"]
         
         # 获取当前汇率
         current_rate = data["prices"].iloc[-1]["close"]
@@ -99,7 +102,7 @@ def valuation_agent(state: AgentState):
     )
     
     if show_reasoning:
-        show_agent_reasoning(message_content, "FX Valuation Analysis Agent")
+        show_agent_reasoning(message_content, "FX Valuation Analysis Agent", 'Valuation', time, symbol, start_date, end_date)
         
     return {
         "messages": [message],

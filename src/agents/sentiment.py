@@ -96,7 +96,7 @@ def sentiment_agent(state: AgentState):
 
        # show_reasoning
         if show_reasoning:
-            show_agent_reasoning(message_content, "FX Sentiment Analysis Agent")
+            show_agent_reasoning(message_content, "FX Sentiment Analysis Agent", 'Sentiment', time, symbol, start_date, end_date)
 
         # create the sentiment analysis message
         message = HumanMessage(
